@@ -1,0 +1,19 @@
+{
+  "name": "article-management-node",
+  "version": "1.0.0",
+  "description": "An article management system",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nathanbizkit/article-management-node.git"
+  },
+  "author": "NT",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nathanbizkit/article-management-node/issues"
+  },
+  "homepage": "https://github.com/nathanbizkit/article-management-node#readme"
+}
