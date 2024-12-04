@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/nathanbizkit/article-management-node/issues"
   },
-  "homepage": "https://github.com/nathanbizkit/article-management-node#readme"
+  "homepage": "https://github.com/nathanbizkit/article-management-node#readme",
+  "dependencies": {
+    "express": "^4.21.1"
+  }
 }
