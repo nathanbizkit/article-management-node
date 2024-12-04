@@ -2,7 +2,7 @@
     "name": "article-management-node",
     "version": "1.0.0",
     "description": "An article management system",
-    "main": "index.js",
+    "main": "app.ts",
     "type": "module",
     "scripts": {
         "format": "prettier --write .",
@@ -21,12 +21,16 @@
     },
     "homepage": "https://github.com/nathanbizkit/article-management-node#readme",
     "dependencies": {
-        "express": "^4.21.1"
+        "express": "^4.21.1",
+        "pg-promise": "^11.10.2"
     },
     "devDependencies": {
         "@eslint/js": "^9.16.0",
+        "@types/express": "^5.0.0",
         "eslint": "^9.16.0",
         "globals": "^15.13.0",
-        "prettier": "^3.4.2"
+        "prettier": "^3.4.2",
+        "typescript": "^5.7.2",
+        "typescript-eslint": "^8.17.0"
     }
 }
