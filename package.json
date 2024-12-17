@@ -21,11 +21,14 @@
     },
     "homepage": "https://github.com/nathanbizkit/article-management-node#readme",
     "dependencies": {
+        "bcrypt": "^5.1.1",
         "express": "^4.21.1",
+        "joi": "^17.13.3",
         "pg-promise": "^11.10.2"
     },
     "devDependencies": {
         "@eslint/js": "^9.16.0",
+        "@types/bcrypt": "^5.0.2",
         "@types/express": "^5.0.0",
         "eslint": "^9.16.0",
         "globals": "^15.13.0",
