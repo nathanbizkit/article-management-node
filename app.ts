@@ -9,6 +9,16 @@ app.get('/', (_req, res) => {
     res.status(200).json({ message: 'Hello, world!' });
 });
 
-app.listen(3000, () => {
-    console.log(`server running on port 3000`);
+const { APP_PORT = '8000' } = process.env;
+const appPort = parseInt(APP_PORT);
+
+const server = app.listen(appPort, () => {
+    console.log(`server running on port ${appPort}`);
 });
+
+const gracefulShutdown = () => {
+    server.close(() => console.log('http server closed'));
+};
+
+process.on('SIGINT', gracefulShutdown);
+process.on('SIGTERM', gracefulShutdown);
