@@ -22,3 +22,7 @@ const gracefulShutdown = () => {
 
 process.on('SIGINT', gracefulShutdown);
 process.on('SIGTERM', gracefulShutdown);
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.log('unhandled rejection at:', promise, 'reason:', reason);
+});
