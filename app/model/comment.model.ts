@@ -1,7 +1,7 @@
 'use strict';
 
 import Joi from 'joi';
-import { responseProfile, User } from './user';
+import { responseProfile, User } from './user.model';
 import { CommentResponse } from './comment.message';
 
 export type Comment = {

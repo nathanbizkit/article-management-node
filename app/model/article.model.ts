@@ -1,8 +1,8 @@
 'use strict';
 
 import Joi from 'joi';
-import { Tag } from './tag';
-import { responseProfile, User } from './user';
+import { Tag } from './tag.model';
+import { responseProfile, User } from './user.model';
 import { ArticleResponse } from './article.message';
 
 // Article model
