@@ -13,7 +13,7 @@ export type Article = {
     body: string;
     tags: Tag[];
     userID: number;
-    author: User;
+    author: User | null;
     favoritesCount: number;
     createdAt: Date;
     updatedAt: Date;
@@ -56,4 +56,97 @@ export const responseArticle = (
     author: responseProfile(article.author, followingAuthor),
     created_at: article.createdAt.toISOString(),
     updated_at: article.updatedAt.toISOString(),
+});
+
+// mapArticleFromDB returns an article object mapping from database record
+export const mapArticleFromDB = ({
+    id,
+    title,
+    description,
+    body,
+    user_id,
+    favorites_count,
+    created_at,
+    updated_at,
+}: {
+    id: string;
+    title: string;
+    description: string;
+    body: string;
+    user_id: string;
+    favorites_count: string;
+    created_at: Date;
+    updated_at: Date;
+}): Article => ({
+    id: parseInt(id),
+    title,
+    description,
+    body,
+    tags: [],
+    userID: parseInt(user_id),
+    author: null,
+    favoritesCount: parseInt(favorites_count),
+    createdAt: created_at,
+    updatedAt: updated_at,
+});
+
+// mapArticleWithAuthorFromDB returns an article object with its author mapping from database record
+export const mapArticleWithAuthorFromDB = ({
+    id,
+    title,
+    description,
+    body,
+    user_id,
+    favorites_count,
+    created_at,
+    updated_at,
+    u_id,
+    username,
+    email,
+    password,
+    name,
+    bio,
+    image,
+    u_created_at,
+    u_updated_at,
+}: {
+    id: string;
+    title: string;
+    description: string;
+    body: string;
+    user_id: string;
+    favorites_count: string;
+    created_at: Date;
+    updated_at: Date;
+    u_id: string;
+    username: string;
+    email: string;
+    password: string;
+    name: string;
+    bio: string;
+    image: string;
+    u_created_at: Date;
+    u_updated_at: Date;
+}): Article => ({
+    id: parseInt(id),
+    title,
+    description,
+    body,
+    tags: [],
+    userID: parseInt(user_id),
+    author: {
+        id: parseInt(u_id),
+        username,
+        email,
+        plainPassword: '',
+        hashedPassword: password,
+        name,
+        bio,
+        image,
+        createdAt: u_created_at,
+        updatedAt: u_updated_at,
+    },
+    favoritesCount: parseInt(favorites_count),
+    createdAt: created_at,
+    updatedAt: updated_at,
 });

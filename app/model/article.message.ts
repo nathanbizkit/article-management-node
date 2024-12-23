@@ -13,7 +13,7 @@ export type ArticleResponse = {
     tags: string[];
     favorited: boolean;
     favorites_count: number;
-    author: ProfileResponse;
+    author: ProfileResponse | null;
     created_at: string;
     updated_at: string;
 };

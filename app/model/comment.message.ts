@@ -8,7 +8,7 @@ import { ProfileResponse } from './user.message';
 export type CommentResponse = {
     id: number;
     body: string;
-    author: ProfileResponse;
+    author: ProfileResponse | null;
     created_at: string;
     updated_at: string;
 };

@@ -69,12 +69,49 @@ export const checkUserPassword = async (
 
 // responseProfile generates response message for user's profile
 export const responseProfile = (
-    user: User,
+    user: User | null,
     following: boolean,
-): ProfileResponse => ({
-    username: user.username,
-    name: user.name,
-    bio: user.bio,
-    image: user.image,
-    following,
+): ProfileResponse | null =>
+    user
+        ? {
+              username: user.username,
+              name: user.name,
+              bio: user.bio,
+              image: user.image,
+              following,
+          }
+        : null;
+
+// mapUserFromDB returns a user object mapping from database record
+export const mapUserFromDB = ({
+    id,
+    username,
+    email,
+    password,
+    name,
+    bio,
+    image,
+    created_at,
+    updated_at,
+}: {
+    id: string;
+    username: string;
+    email: string;
+    password: string;
+    name: string;
+    bio: string;
+    image: string;
+    created_at: Date;
+    updated_at: Date;
+}): User => ({
+    id: parseInt(id),
+    username,
+    email,
+    plainPassword: '',
+    hashedPassword: password,
+    name,
+    bio,
+    image,
+    createdAt: created_at,
+    updatedAt: updated_at,
 });
