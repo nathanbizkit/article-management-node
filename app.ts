@@ -4,11 +4,13 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import { corsOptions } from '@app/middleware/cors.middleware';
+import secure from '@app/middleware/secure.middleware';
 
 const app = express();
 
 // middlewares
 app.use(cors(corsOptions()));
+app.use(secure);
 
 app.get('/', (_req, res) => {
     res.status(200).json({ message: 'Hello, world!' });
