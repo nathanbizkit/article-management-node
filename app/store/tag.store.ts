@@ -27,7 +27,7 @@ export const getTagsByArticleID = async <T>(
 export const getTagsByArticleIDs = async <T>(
     db: IDatabase<T> | ITask<T>,
     articleIDs: number[],
-): Promise<{ [k: number]: Tag[] }> => {
+): Promise<Record<number, Tag[]>> => {
     const queryString = `SELECT 
       at.article_id AS a_id, t.id, t.name, t.created_at, t.updated_at 
       FROM "article_management".article_tags at 
@@ -42,6 +42,6 @@ export const getTagsByArticleIDs = async <T>(
                 [tag.articleID]: [...(acc[tag.articleID] || []), tag],
             };
         },
-        {} as { [k: number]: Tag[] },
+        {} as Record<number, Tag[]>,
     );
 };
