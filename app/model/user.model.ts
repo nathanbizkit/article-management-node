@@ -38,8 +38,9 @@ const schema = Joi.object({
 });
 
 // validateUser validates fields of user model
-export const validateUser = (user: User): Joi.ValidationResult<User> =>
-    schema.validate(user);
+export const validateUser = async (
+    user: User,
+): Promise<Joi.ValidationResult<User>> => await schema.validateAsync(user);
 
 // overwriteUser overwrites each field if it's not falsy-value
 export const overwriteUser = (a: User, b: User): User => ({
@@ -53,13 +54,10 @@ export const overwriteUser = (a: User, b: User): User => ({
 });
 
 // hashUserPassword encrypts user's password and stores it as hashed password
-export const hashUserPassword = async (user: User) => {
-    if (user.plainPassword === '') {
-        throw new Error('plain password is empty');
-    }
-
-    user.hashedPassword = await Bcrypt.hash(user.plainPassword, 10);
-};
+export const hashUserPassword = async (plain: string): Promise<string> =>
+    !plain || plain === ''
+        ? await Promise.reject(new Error('plain password is empty'))
+        : await Bcrypt.hash(plain, 10);
 
 // checkUserPassword checks if user's password is matched with hashed password
 export const checkUserPassword = async (

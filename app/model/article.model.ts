@@ -28,9 +28,10 @@ const schema = Joi.object({
 });
 
 // validateArticle validtes fields of article model
-export const validateArticle = (
+export const validateArticle = async (
     article: Article,
-): Joi.ValidationResult<Article> => schema.validate(article);
+): Promise<Joi.ValidationResult<Article>> =>
+    await schema.validateAsync(article);
 
 // overwriteArticle overwrites each field if it's not falsy-value
 export const overwriteArticle = (a: Article, b: Article): Article => ({

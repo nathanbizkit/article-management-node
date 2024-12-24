@@ -21,9 +21,10 @@ const schema = Joi.object({
 });
 
 // validateComment validates fields of comment model
-export const validateComment = (
+export const validateComment = async (
     comment: Comment,
-): Joi.ValidationResult<Comment> => schema.validate(comment);
+): Promise<Joi.ValidationResult<Comment>> =>
+    await schema.validateAsync(comment);
 
 // responseComment generates response message for comment
 export const responseComment = (
