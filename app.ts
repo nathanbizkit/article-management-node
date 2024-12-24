@@ -7,7 +7,8 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import { corsOptions } from '@app/middleware/cors.middleware';
 import secure from '@app/middleware/secure.middleware';
-import restricted from '@app/middleware/restricted.middleware';
+import publicRouter from '@app/handler/public.handler';
+import privateRouter from '@app/handler/private.handler';
 
 const app = express();
 
@@ -17,21 +18,18 @@ app.use(secure);
 app.use(compression());
 app.use(cookieParser());
 
-app.get('/', (_req, res) => {
-    res.status(200).json({ message: 'Hello, world!' });
-});
+// routers
+app.use(publicRouter);
+app.use(privateRouter);
 
-app.get('/private', restricted, (_req, res) => {
-    res.status(200).json({ message: 'Welcome to restricted area!' });
-});
-
+// bootup
 const { APP_PORT = '8000' } = process.env;
 const appPort = parseInt(APP_PORT);
-
 const server = app.listen(appPort, () => {
     console.log(`server running on port ${appPort}`);
 });
 
+// cleanup
 const gracefulShutdown = () => {
     server.close(() => console.log('http server closed'));
 };
