@@ -1,10 +1,14 @@
 'use strict';
 
 import 'dotenv/config';
+import fs from 'fs';
+import http from 'http';
+import https, { Server as HTTPSServer } from 'https';
 import express from 'express';
 import cors from 'cors';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
+import morgan from 'morgan';
 import { corsOptions } from '@app/middleware/cors.middleware';
 import secure from '@app/middleware/secure.middleware';
 import publicRouter from '@app/handler/public.handler';
@@ -17,21 +21,53 @@ app.use(cors(corsOptions()));
 app.use(secure);
 app.use(compression());
 app.use(cookieParser());
+app.use(morgan('combined'));
 
 // routers
-app.use(publicRouter);
-app.use(privateRouter);
+const apiRouter = express.Router();
+apiRouter.use(publicRouter);
+apiRouter.use(privateRouter);
+app.use('/api/v1', apiRouter);
 
 // bootup
-const { APP_PORT = '8000' } = process.env;
+const {
+    APP_PORT = '8000',
+    APP_TLS_PORT = '8443',
+    TLS_CERT_FILE = '',
+    TLS_KEY_FILE = '',
+} = process.env;
+
+const httpServer = new http.Server(app);
+
 const appPort = parseInt(APP_PORT);
-const server = app.listen(appPort, () => {
-    console.log(`server running on port ${appPort}`);
+httpServer.listen(appPort, () => {
+    console.log(`api server running on port ${appPort}`);
 });
+
+let httpsServer: HTTPSServer | undefined;
+if (TLS_KEY_FILE !== '' && TLS_CERT_FILE !== '') {
+    const options = {
+        key: fs.readFileSync(TLS_KEY_FILE),
+        cert: fs.readFileSync(TLS_CERT_FILE),
+    };
+
+    httpsServer = new https.Server(options, app);
+
+    const appTLSPort = parseInt(APP_TLS_PORT);
+    httpsServer.listen(appTLSPort, () => {
+        console.log(
+            `api server running on port ${appTLSPort} (ssl connection)`,
+        );
+    });
+}
 
 // cleanup
 const gracefulShutdown = () => {
-    server.close(() => console.log('http server closed'));
+    httpServer.close(() => console.log('http server closed'));
+
+    if (httpsServer) {
+        httpsServer.close(() => console.log('https server closed'));
+    }
 };
 
 process.on('SIGINT', gracefulShutdown);
