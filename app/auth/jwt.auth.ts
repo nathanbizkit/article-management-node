@@ -1,23 +1,29 @@
 'use strict';
 
-import jwt, { JwtPayload, PrivateKey, PublicKey, Secret } from 'jsonwebtoken';
+import jwt, {
+    JwtPayload,
+    PrivateKey,
+    PublicKey,
+    Secret,
+    SignOptions,
+} from 'jsonwebtoken';
 
-export const tokenTTL = 259200; // 3 days
-export const refreshTokenTTL = 604800; // 7 days
-export const tokenCookieMaxAge = tokenTTL * 1000; // 3 days in milliseconds
-export const refreshTokenCookieMaxAge = refreshTokenTTL * 1000; // 7 days in milliseconds
+export const sessionTTL = 259200; // 3 days
+export const refreshTTL = 604800; // 7 days
+export const sessionCookieMaxAge = sessionTTL * 1000; // 3 days in milliseconds
+export const refreshCookieMaxAge = refreshTTL * 1000; // 7 days in milliseconds
 
 // generateToken generates a jwt token in HS512 algorith with id object
 export const generateToken = async (
     uid: number,
     key: Secret | PrivateKey,
-    expiresIn: string | number | undefined,
+    options: SignOptions,
 ): Promise<string | undefined> =>
     new Promise((resolve, reject) =>
         jwt.sign(
             { uid },
             key,
-            { algorithm: 'HS512', expiresIn },
+            { ...options, algorithm: 'HS512' },
             (err, encoded) => (err ? reject(err) : resolve(encoded)),
         ),
     );

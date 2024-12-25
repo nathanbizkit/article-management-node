@@ -11,6 +11,17 @@ import { getUserByID } from './user.store';
 import { mapTagFromDB } from '@app/model/tag.model';
 import { User } from '@app/model/user.model';
 
+export interface GetArticlesOptions {
+    tagName?: string;
+    username?: string;
+    favoritedBy?: User;
+}
+
+export interface PaginationOptions {
+    limit?: number;
+    offset?: number;
+}
+
 // getArticleByID find an article by id
 export const getArticleByID = async <T>(
     db: IDatabase<T> | ITask<T>,
@@ -112,11 +123,8 @@ export const updateArticle = async <T>(
 // getArticles gets global articles
 export const getArticles = async <T>(
     db: IDatabase<T> | ITask<T>,
-    tagName: string,
-    username: string,
-    favoritedBy: User | null | undefined,
-    limit: number,
-    offset: number,
+    options: GetArticlesOptions,
+    paginationOptions: PaginationOptions,
 ): Promise<Article[]> => {
     let queryString = `SELECT 
 		a.id, a.title, a.description, a.body, a.user_id, a.favorites_count, 
@@ -131,25 +139,25 @@ export const getArticles = async <T>(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let condArgs: any[] = [];
 
-    if (username) {
+    if (options.username) {
         condStrings = [...condStrings, `u.username = $${++condCount}`];
-        condArgs = [...condArgs, username];
+        condArgs = [...condArgs, options.username];
     }
 
-    if (tagName) {
+    if (options.tagName) {
         queryString += ` INNER JOIN "article_management".article_tags at ON at.article_id = a.id 
 			INNER JOIN "article_management".tags t ON t.id = at.tag_id `;
         condStrings = [...condStrings, `t.name = $${++condCount}`];
-        condArgs = [...condArgs, tagName];
+        condArgs = [...condArgs, options.tagName];
     }
 
-    if (favoritedBy !== null || favoritedBy !== undefined) {
+    if (options.favoritedBy !== null || options.favoritedBy !== undefined) {
         const queryString = `SELECT article_id AS id 
 			FROM "article_management".favorite_articles 
 			WHERE user_id = $1`;
         const articleIDs = await db.map(
             queryString,
-            [favoritedBy?.id],
+            [options.favoritedBy?.id],
             (row) => row.id,
         );
         condStrings = [...condStrings, `a.id = ANY($${++condCount}:csv)`];
@@ -162,9 +170,15 @@ export const getArticles = async <T>(
 
     queryString += ` ORDER BY a.created_at DESC `;
 
-    queryString += ` LIMIT $${++condCount} `;
-    queryString += ` OFFSET $${++condCount} `;
-    condArgs = [...condArgs, limit, offset];
+    const { limit = -1, offset = 0 } = paginationOptions;
+    if (limit >= 0) {
+        queryString += ` LIMIT $${++condCount} `;
+        queryString += ` OFFSET $${++condCount} `;
+        condArgs = [...condArgs, limit, offset];
+    } else {
+        queryString += ` OFFSET $${++condCount} `;
+        condArgs = [...condArgs, offset];
+    }
 
     const articles = await db.map(
         queryString,
@@ -186,10 +200,9 @@ export const getArticles = async <T>(
 export const getFeedArticles = async <T>(
     db: IDatabase<T> | ITask<T>,
     userIDs: number[],
-    limit: number,
-    offset: number,
+    paginationOptions: PaginationOptions,
 ): Promise<Article[]> => {
-    const queryString = `SELECT 
+    let queryString = `SELECT 
 		a.id, a.title, a.description, a.body, a.user_id, a.favorites_count, 
         a.created_at, a.updated_at, 
 		u.id AS u_id, u.username, u.email, u.password, u.name, u.bio, u.image, 
@@ -197,11 +210,25 @@ export const getFeedArticles = async <T>(
 		FROM "article_management".articles a 
 		INNER JOIN "article_management".users u ON u.id = a.user_id 
 		WHERE a.user_id = ANY($1:csv) 
-		ORDER BY a.created_at DESC 
-		LIMIT $2 OFFSET $3`;
+		ORDER BY a.created_at DESC`;
+
+    let condCount = 1;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let condArgs: any = [];
+
+    const { limit = -1, offset = 0 } = paginationOptions;
+    if (limit >= 0) {
+        queryString += ` LIMIT $${++condCount} `;
+        queryString += ` OFFSET $${++condCount} `;
+        condArgs = [...condArgs, limit, offset];
+    } else {
+        queryString += ` OFFSET $${++condCount} `;
+        condArgs = [...condArgs, offset];
+    }
+
     const articles = await db.map(
         queryString,
-        [userIDs, limit, offset],
+        [userIDs, ...condArgs],
         mapArticleWithAuthorFromDB,
     );
 
@@ -273,8 +300,8 @@ export const addFavorite = async <T>(
         }));
     });
 
-// deleteFavorites unfavorites an article
-export const deleteFavorites = async <T>(
+// deleteFavorite unfavorites an article
+export const deleteFavorite = async <T>(
     db: IDatabase<T> | ITask<T>,
     article: Article,
     user: User,

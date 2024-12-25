@@ -2,10 +2,10 @@
 
 import {
     generateToken,
-    refreshTokenCookieMaxAge,
-    refreshTokenTTL,
-    tokenCookieMaxAge,
-    tokenTTL,
+    refreshCookieMaxAge,
+    refreshTTL,
+    sessionCookieMaxAge,
+    sessionTTL,
 } from '@app/auth/jwt.auth';
 import PostgresDB from '@app/db/postgres.db';
 import { checkPassword } from '@app/model/user.model';
@@ -34,16 +34,17 @@ export const login = async (req: Request, res: Response) => {
         res.status(400).json({ error: 'invalid password' });
         return;
     }
+
     try {
         const { AUTH_JWT_SECRET_KEY: key = '' } = process.env;
         const cookiePath = req.app.get('cookie path');
 
-        const sessionToken = await generateToken(user?.id, key, tokenTTL);
-        const refreshToken = await generateToken(
-            user?.id,
-            key,
-            refreshTokenTTL,
-        );
+        const sessionToken = await generateToken(user?.id, key, {
+            expiresIn: sessionTTL,
+        });
+        const refreshToken = await generateToken(user?.id, key, {
+            expiresIn: refreshTTL,
+        });
 
         const cookieOptions = {
             path: cookiePath,
@@ -52,11 +53,11 @@ export const login = async (req: Request, res: Response) => {
         };
         res.cookie('session', sessionToken, {
             ...cookieOptions,
-            maxAge: tokenCookieMaxAge,
+            maxAge: sessionCookieMaxAge,
         });
         res.cookie('refreshToken', refreshToken, {
             ...cookieOptions,
-            maxAge: refreshTokenCookieMaxAge,
+            maxAge: refreshCookieMaxAge,
         });
     } catch {
         res.status(500).json({ error: 'failed to generate token' });
