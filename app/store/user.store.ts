@@ -19,7 +19,7 @@ export const getUserByID = async <T>(
 export const getUserByEmail = async <T>(
     db: IDatabase<T> | ITask<T>,
     email: string,
-): Promise<User | null> => {
+): Promise<User> => {
     const queryString = `SELECT 
 		id, username, email, password, name, bio, image, created_at, updated_at 
 		FROM "article_management".users 
@@ -31,7 +31,7 @@ export const getUserByEmail = async <T>(
 export const getUserByUsername = async <T>(
     db: IDatabase<T> | ITask<T>,
     username: string,
-): Promise<User | null> => {
+): Promise<User> => {
     const queryString = `SELECT 
 		id, username, email, password, name, bio, image, created_at, updated_at 
 		FROM "article_management".users 

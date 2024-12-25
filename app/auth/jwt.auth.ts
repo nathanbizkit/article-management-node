@@ -4,6 +4,8 @@ import jwt, { JwtPayload, PrivateKey, PublicKey, Secret } from 'jsonwebtoken';
 
 export const tokenTTL = 259200; // 3 days
 export const refreshTokenTTL = 604800; // 7 days
+export const tokenCookieMaxAge = tokenTTL * 1000; // 3 days in milliseconds
+export const refreshTokenCookieMaxAge = refreshTokenTTL * 1000; // 7 days in milliseconds
 
 // generateToken generates a jwt token in HS512 algorith with id object
 export const generateToken = async (

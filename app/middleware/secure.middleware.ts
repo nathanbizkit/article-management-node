@@ -9,7 +9,7 @@ const secure = (req: Request, res: Response, next: NextFunction) => {
         req.get('x-forwarded-proto') !== 'https' &&
         process.env.NODE_ENV !== 'development'
     ) {
-        res.redirect(`https://${req.get('host')}${req.url}`);
+        res.redirect(`https://${req.headers.host}${req.originalUrl}`);
         return;
     }
 

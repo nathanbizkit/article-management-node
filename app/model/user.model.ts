@@ -59,11 +59,11 @@ export const hashUserPassword = async (plain: string): Promise<string> =>
         ? await Promise.reject(new Error('plain password is empty'))
         : await Bcrypt.hash(plain, 10);
 
-// checkUserPassword checks if user's password is matched with hashed password
-export const checkUserPassword = async (
-    user: User,
+// checkPassword checks if user's password is matched with hashed password
+export const checkPassword = async (
+    hashed: string,
     plain: string,
-): Promise<boolean> => await Bcrypt.compare(plain, user.hashedPassword);
+): Promise<boolean> => await Bcrypt.compare(plain, hashed);
 
 // responseProfile generates response message for user's profile
 export const responseProfile = (

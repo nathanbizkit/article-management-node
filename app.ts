@@ -13,8 +13,13 @@ import { corsOptions } from '@app/middleware/cors.middleware';
 import secure from '@app/middleware/secure.middleware';
 import publicRouter from '@app/handler/public.handler';
 import privateRouter from '@app/handler/private.handler';
+import PostgresDB from '@app/db/postgres.db';
 
 const app = express();
+
+// locals
+app.set('postgres db', PostgresDB.getInstance());
+app.set('cookie path', '/api/v1');
 
 // middlewares
 app.use(cors(corsOptions()));
