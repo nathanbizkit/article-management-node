@@ -17,7 +17,7 @@ export const refreshCookieMaxAge = refreshTTL * 1000; // 7 days in milliseconds
 export const generateToken = async (
     uid: number,
     key: Secret | PrivateKey,
-    options: SignOptions,
+    options: SignOptions = {},
 ): Promise<string | undefined> =>
     new Promise((resolve, reject) =>
         jwt.sign(

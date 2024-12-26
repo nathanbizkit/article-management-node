@@ -1,10 +1,6 @@
 'use strict';
 
-import {
-    Comment,
-    mapCommentFromDB,
-    mapCommentWithAuthorFromDB,
-} from '@app/model/comment.model';
+import { Comment, mapCommentFromDB } from '@app/model/comment.model';
 import { IDatabase, ITask } from 'pg-promise';
 import { getUserByID } from './user.store';
 
@@ -20,7 +16,7 @@ export const getCommentsByID = async <T>(
 		FROM "article_management".comments c 
 		INNER JOIN "article_management".users u ON u.id = c.user_id 
 		WHERE c.id = $1`;
-    return db.map(queryString, [id], mapCommentWithAuthorFromDB);
+    return db.map(queryString, [id], mapCommentFromDB);
 };
 
 // getCommentsByArticleID gets comments of the article
@@ -36,7 +32,7 @@ export const getCommentsByArticleID = async <T>(
 		INNER JOIN "article_management".users u ON u.id = c.user_id 
 		WHERE c.article_id = $1 
 		ORDER BY c.created_at DESC`;
-    return db.map(queryString, [articleID], mapCommentWithAuthorFromDB);
+    return db.map(queryString, [articleID], mapCommentFromDB);
 };
 
 // createComment creates a comment of the article

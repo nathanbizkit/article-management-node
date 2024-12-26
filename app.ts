@@ -55,7 +55,6 @@ if (TLS_KEY_FILE !== '' && TLS_CERT_FILE !== '') {
         key: fs.readFileSync(TLS_KEY_FILE),
         cert: fs.readFileSync(TLS_CERT_FILE),
     };
-
     httpsServer = new https.Server(options, app);
 
     const appTLSPort = parseInt(APP_TLS_PORT);

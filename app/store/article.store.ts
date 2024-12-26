@@ -1,26 +1,11 @@
 'use strict';
 
-import {
-    Article,
-    mapArticleFromDB,
-    mapArticleWithAuthorFromDB,
-} from '@app/model/article.model';
+import { Article, mapArticleFromDB } from '@app/model/article.model';
 import { getTagsByArticleID, getTagsByArticleIDs } from './tag.store';
 import { IDatabase, ITask } from 'pg-promise';
 import { getUserByID } from './user.store';
 import { mapTagFromDB } from '@app/model/tag.model';
 import { User } from '@app/model/user.model';
-
-export interface GetArticlesOptions {
-    tagName?: string;
-    username?: string;
-    favoritedBy?: User;
-}
-
-export interface PaginationOptions {
-    limit?: number;
-    offset?: number;
-}
 
 // getArticleByID find an article by id
 export const getArticleByID = async <T>(
@@ -36,12 +21,7 @@ export const getArticleByID = async <T>(
             FROM "article_management".articles a 
             INNER JOIN "article_management".users u ON u.id = a.user_id 
             WHERE a.id = $1`;
-        const article = await t.one(
-            queryString,
-            [id],
-            mapArticleWithAuthorFromDB,
-        );
-
+        const article = await t.one(queryString, [id], mapArticleFromDB);
         article.tags = [...(await getTagsByArticleID(t, article.id))];
         return article;
     });
@@ -120,11 +100,24 @@ export const updateArticle = async <T>(
         return updatedArticle;
     });
 
+// PaginationOptions model
+export interface PaginationOptions {
+    limit?: number;
+    offset?: number;
+}
+
+// GetArticlesOptions model
+export interface GetArticlesOptions {
+    tagName?: string;
+    username?: string;
+    favoritedBy?: User;
+    pagination?: PaginationOptions;
+}
+
 // getArticles gets global articles
 export const getArticles = async <T>(
     db: IDatabase<T> | ITask<T>,
-    options: GetArticlesOptions,
-    paginationOptions: PaginationOptions,
+    options: GetArticlesOptions = {},
 ): Promise<Article[]> => {
     let queryString = `SELECT 
 		a.id, a.title, a.description, a.body, a.user_id, a.favorites_count, 
@@ -170,7 +163,9 @@ export const getArticles = async <T>(
 
     queryString += ` ORDER BY a.created_at DESC `;
 
-    const { limit = -1, offset = 0 } = paginationOptions;
+    const limit = options.pagination?.limit ?? -1;
+    const offset = options.pagination?.offset ?? 0;
+
     if (limit >= 0) {
         queryString += ` LIMIT $${++condCount} `;
         queryString += ` OFFSET $${++condCount} `;
@@ -180,11 +175,7 @@ export const getArticles = async <T>(
         condArgs = [...condArgs, offset];
     }
 
-    const articles = await db.map(
-        queryString,
-        condArgs,
-        mapArticleWithAuthorFromDB,
-    );
+    const articles = await db.map(queryString, condArgs, mapArticleFromDB);
     const tagsMap = await getTagsByArticleIDs(
         db,
         articles.map((article) => article.id),
@@ -196,11 +187,16 @@ export const getArticles = async <T>(
     }));
 };
 
+// GetFeedArticlesOptions model
+export interface GetFeedArticlesOptions {
+    pagination?: PaginationOptions;
+}
+
 // getFeedArticles gets following users' articles
 export const getFeedArticles = async <T>(
     db: IDatabase<T> | ITask<T>,
     userIDs: number[],
-    paginationOptions: PaginationOptions,
+    options: GetFeedArticlesOptions = {},
 ): Promise<Article[]> => {
     let queryString = `SELECT 
 		a.id, a.title, a.description, a.body, a.user_id, a.favorites_count, 
@@ -216,7 +212,9 @@ export const getFeedArticles = async <T>(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let condArgs: any = [];
 
-    const { limit = -1, offset = 0 } = paginationOptions;
+    const limit = options.pagination?.limit ?? -1;
+    const offset = options.pagination?.offset ?? 0;
+
     if (limit >= 0) {
         queryString += ` LIMIT $${++condCount} `;
         queryString += ` OFFSET $${++condCount} `;
@@ -229,7 +227,7 @@ export const getFeedArticles = async <T>(
     const articles = await db.map(
         queryString,
         [userIDs, ...condArgs],
-        mapArticleWithAuthorFromDB,
+        mapArticleFromDB,
     );
 
     const tagsMap = await getTagsByArticleIDs(
@@ -257,8 +255,8 @@ export const deleteArticle = async <T>(
 // isFavorited checks whether the article is favorited by the user
 export const isFavorited = async <T>(
     db: IDatabase<T> | ITask<T>,
-    article: Article | null | undefined,
-    user: User | null | undefined,
+    article?: Article,
+    user?: User,
 ): Promise<boolean> => {
     if (
         article === null ||

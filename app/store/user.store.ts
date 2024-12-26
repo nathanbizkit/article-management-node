@@ -7,7 +7,7 @@ import { IDatabase, ITask } from 'pg-promise';
 export const getUserByID = async <T>(
     db: IDatabase<T> | ITask<T>,
     id: number,
-): Promise<User | null> => {
+): Promise<User> => {
     const queryString = `SELECT 
 		id, username, email, password, name, bio, image, created_at, updated_at 
 		FROM "article_management".users 
@@ -90,8 +90,8 @@ export const updateUser = async <T>(
 // isFollowing returns wheter user A follows user B
 export const isFollowing = async <T>(
     db: IDatabase<T> | ITask<T>,
-    a: User | null | undefined,
-    b: User | null | undefined,
+    a?: User,
+    b?: User,
 ): Promise<boolean> => {
     if (a === null || a === undefined || b === null || b === undefined) {
         return false;

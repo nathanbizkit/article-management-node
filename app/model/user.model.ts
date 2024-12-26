@@ -2,7 +2,6 @@
 
 import Joi from 'joi';
 import Bcrypt from 'bcrypt';
-import { ProfileResponse } from './user.message';
 
 // User model
 export type User = {
@@ -65,33 +64,34 @@ export const checkPassword = async (
     plain: string,
 ): Promise<boolean> => await Bcrypt.compare(plain, hashed);
 
-// responseProfile generates response message for user's profile
-export const responseProfile = (
-    user: User | null,
-    following: boolean,
-): ProfileResponse | null =>
-    user
-        ? {
-              username: user.username,
-              name: user.name,
-              bio: user.bio,
-              image: user.image,
-              following,
-          }
-        : null;
+// UserProfile model
+export type UserProfile = {
+    username: string;
+    name: string;
+    bio: string;
+    image: string;
+    following: boolean;
+};
 
-// mapUserFromDB returns a user object mapping from database record
-export const mapUserFromDB = ({
-    id,
-    username,
-    email,
-    password,
-    name,
-    bio,
-    image,
-    created_at,
-    updated_at,
-}: {
+// UserProfileOptions model
+export interface UserProfileOptions {
+    following?: boolean;
+}
+
+// buildUserProfile generates user's profile information
+export const buildUserProfile = (
+    user: User,
+    options: UserProfileOptions = {},
+): UserProfile => ({
+    username: user.username,
+    name: user.name,
+    bio: user.bio,
+    image: user.image,
+    following: options.following ?? false,
+});
+
+// UserFromDB model
+export type UserFromDB = {
     id: string;
     username: string;
     email: string;
@@ -101,15 +101,18 @@ export const mapUserFromDB = ({
     image: string;
     created_at: Date;
     updated_at: Date;
-}): User => ({
-    id: parseInt(id),
-    username,
-    email,
+};
+
+// mapUserFromDB returns a user object mapping from database record
+export const mapUserFromDB = (user: UserFromDB): User => ({
+    id: parseInt(user.id),
+    username: user.username,
+    email: user.email,
     plainPassword: '',
-    hashedPassword: password,
-    name,
-    bio,
-    image,
-    createdAt: created_at,
-    updatedAt: updated_at,
+    hashedPassword: user.password,
+    name: user.name,
+    bio: user.bio,
+    image: user.image,
+    createdAt: user.created_at,
+    updatedAt: user.updated_at,
 });

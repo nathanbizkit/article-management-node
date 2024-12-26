@@ -1,14 +1,19 @@
 'use strict';
 
 import Joi from 'joi';
-import { responseProfile, User } from './user.model';
-import { CommentResponse } from './comment.message';
+import {
+    buildUserProfile,
+    User,
+    UserProfile,
+    UserProfileOptions,
+} from './user.model';
 
+// Comment model
 export type Comment = {
     id: number;
     body: string;
     userID: number;
-    author: User | null;
+    author: User;
     articleID: number;
     createdAt: Date;
     updatedAt: Date;
@@ -26,93 +31,71 @@ export const validateComment = async (
 ): Promise<Joi.ValidationResult<Comment>> =>
     await schema.validateAsync(comment);
 
-// responseComment generates response message for comment
-export const responseComment = (
+// Comment model
+export type CommentResponse = {
+    id: number;
+    body: string;
+    author: UserProfile;
+    created_at: string;
+    updated_at: string;
+};
+
+// CommentResponseOptions model
+export interface CommentResponseOptions {
+    author?: UserProfileOptions;
+}
+
+// buildCommentResponse generates response message for comment
+export const buildCommentResponse = (
     comment: Comment,
-    followingAuthor: boolean,
+    options: CommentResponseOptions = {},
 ): CommentResponse => ({
     id: comment.id,
     body: comment.body,
-    author: responseProfile(comment.author, followingAuthor),
+    author: buildUserProfile(comment.author, options.author),
     created_at: comment.createdAt.toISOString(),
     updated_at: comment.updatedAt.toISOString(),
 });
 
-// mapCommentFromDB returns a comment object mapping from database record
-export const mapCommentFromDB = ({
-    id,
-    body,
-    user_id,
-    article_id,
-    created_at,
-    updated_at,
-}: {
+// CommentFromDB model
+export type CommentFromDB = {
     id: string;
     body: string;
     user_id: string;
     article_id: string;
     created_at: Date;
     updated_at: Date;
-}): Comment => ({
-    id: parseInt(id),
-    body,
-    userID: parseInt(user_id),
-    author: null,
-    articleID: parseInt(article_id),
-    createdAt: created_at,
-    updatedAt: updated_at,
-});
 
-// mapCommentWithAuthorFromDB returns a comment object with its author mapping from database record
-export const mapCommentWithAuthorFromDB = ({
-    id,
-    body,
-    user_id,
-    article_id,
-    created_at,
-    updated_at,
-    u_id,
-    username,
-    email,
-    password,
-    name,
-    bio,
-    image,
-    u_created_at,
-    u_updated_at,
-}: {
-    id: string;
-    body: string;
-    user_id: string;
-    article_id: string;
-    created_at: Date;
-    updated_at: Date;
-    u_id: string;
-    username: string;
-    email: string;
-    password: string;
-    name: string;
-    bio: string;
-    image: string;
-    u_created_at: Date;
-    u_updated_at: Date;
-}): Comment => ({
-    id: parseInt(id),
-    body,
-    userID: parseInt(user_id),
+    // author
+    u_id?: string;
+    username?: string;
+    email?: string;
+    password?: string;
+    name?: string;
+    bio?: string;
+    image?: string;
+    u_created_at?: Date;
+    u_updated_at?: Date;
+};
+
+// mapCommentFromDB returns a comment object mapping from database record
+export const mapCommentFromDB = (comment: CommentFromDB): Comment => ({
+    id: parseInt(comment.id),
+    body: comment.body,
+    userID: parseInt(comment.user_id),
     author: {
-        id: parseInt(u_id),
-        username,
-        email,
+        id: parseInt(comment.u_id ?? '0'),
+        username: comment.username ?? '',
+        email: comment.email ?? '',
         plainPassword: '',
-        hashedPassword: password,
-        name,
-        bio,
-        image,
-        createdAt: u_created_at,
-        updatedAt: u_updated_at,
+        hashedPassword: comment.password ?? '',
+        name: comment.name ?? '',
+        bio: comment.bio ?? '',
+        image: comment.image ?? '',
+        createdAt: comment.u_created_at ?? new Date(),
+        updatedAt: comment.u_updated_at ?? new Date(),
     },
-    articleID: parseInt(article_id),
-    createdAt: created_at,
-    updatedAt: updated_at,
+    articleID: parseInt(comment.article_id),
+    createdAt: comment.created_at,
+    updatedAt: comment.updated_at,
 });

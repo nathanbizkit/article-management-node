@@ -1,6 +1,6 @@
 'use strict';
 
-import { mapTagFromDB, mapTagsFromDB, Tag } from '@app/model/tag.model';
+import { mapTagFromDB, Tag } from '@app/model/tag.model';
 import { IDatabase, ITask } from 'pg-promise';
 
 // getTags gets all tags
@@ -33,13 +33,13 @@ export const getTagsByArticleIDs = async <T>(
       FROM "article_management".article_tags at 
       INNER JOIN "article_management".tags t ON t.id = at.tag_id 
       WHERE at.article_id = ANY($1:csv)`;
-    const tags = await db.map(queryString, [articleIDs], mapTagsFromDB);
+    const tags = await db.map(queryString, [articleIDs], mapTagFromDB);
 
     return tags.reduce(
         (acc, tag) => {
             return {
                 ...acc,
-                [tag.articleID]: [...(acc[tag.articleID] || []), tag],
+                [tag.articleID ?? 0]: [...(acc[tag.articleID ?? 0] || []), tag],
             };
         },
         {} as Record<number, Tag[]>,

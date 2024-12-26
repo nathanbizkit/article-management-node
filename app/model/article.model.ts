@@ -2,8 +2,12 @@
 
 import Joi from 'joi';
 import { Tag } from './tag.model';
-import { responseProfile, User } from './user.model';
-import { ArticleResponse } from './article.message';
+import {
+    buildUserProfile,
+    User,
+    UserProfile,
+    UserProfileOptions,
+} from './user.model';
 
 // Article model
 export type Article = {
@@ -13,7 +17,7 @@ export type Article = {
     body: string;
     tags: Tag[];
     userID: number;
-    author: User | null;
+    author: User;
     favoritesCount: number;
     createdAt: Date;
     updatedAt: Date;
@@ -41,35 +45,45 @@ export const overwriteArticle = (a: Article, b: Article): Article => ({
     description: b.description,
 });
 
-// responseArticle generates response message from article
-export const responseArticle = (
+// ArticleResponse model
+export type ArticleResponse = {
+    id: number;
+    title: string;
+    description: string;
+    body: string;
+    tags: string[];
+    favorited: boolean;
+    favorites_count: number;
+    author: UserProfile;
+    created_at: string;
+    updated_at: string;
+};
+
+// ArticleResponseOptions model
+export interface ArticleResponseOptions {
+    favorited?: boolean;
+    author?: UserProfileOptions;
+}
+
+// buildArticleResponse generates response message from article
+export const buildArticleResponse = (
     article: Article,
-    favorited: boolean,
-    followingAuthor: boolean,
+    options: ArticleResponseOptions = {},
 ): ArticleResponse => ({
     id: article.id,
     title: article.title,
     description: article.description,
     body: article.body,
     tags: article.tags.map((tag) => tag.name),
-    favorited,
+    favorited: options.favorited ?? false,
     favorites_count: article.favoritesCount,
-    author: responseProfile(article.author, followingAuthor),
+    author: buildUserProfile(article.author, options.author),
     created_at: article.createdAt.toISOString(),
     updated_at: article.updatedAt.toISOString(),
 });
 
-// mapArticleFromDB returns an article object mapping from database record
-export const mapArticleFromDB = ({
-    id,
-    title,
-    description,
-    body,
-    user_id,
-    favorites_count,
-    created_at,
-    updated_at,
-}: {
+// ArticleFromDB model
+export type ArticleFromDB = {
     id: string;
     title: string;
     description: string;
@@ -78,76 +92,40 @@ export const mapArticleFromDB = ({
     favorites_count: string;
     created_at: Date;
     updated_at: Date;
-}): Article => ({
-    id: parseInt(id),
-    title,
-    description,
-    body,
-    tags: [],
-    userID: parseInt(user_id),
-    author: null,
-    favoritesCount: parseInt(favorites_count),
-    createdAt: created_at,
-    updatedAt: updated_at,
-});
 
-// mapArticleWithAuthorFromDB returns an article object with its author mapping from database record
-export const mapArticleWithAuthorFromDB = ({
-    id,
-    title,
-    description,
-    body,
-    user_id,
-    favorites_count,
-    created_at,
-    updated_at,
-    u_id,
-    username,
-    email,
-    password,
-    name,
-    bio,
-    image,
-    u_created_at,
-    u_updated_at,
-}: {
-    id: string;
-    title: string;
-    description: string;
-    body: string;
-    user_id: string;
-    favorites_count: string;
-    created_at: Date;
-    updated_at: Date;
-    u_id: string;
-    username: string;
-    email: string;
-    password: string;
-    name: string;
-    bio: string;
-    image: string;
-    u_created_at: Date;
-    u_updated_at: Date;
-}): Article => ({
-    id: parseInt(id),
-    title,
-    description,
-    body,
+    // author
+    u_id?: string;
+    username?: string;
+    email?: string;
+    password?: string;
+    name?: string;
+    bio?: string;
+    image?: string;
+    u_created_at?: Date;
+    u_updated_at?: Date;
+};
+
+// mapArticleFromDB returns an article object mapping from database record
+export const mapArticleFromDB = (article: ArticleFromDB): Article => ({
+    id: parseInt(article.id),
+    title: article.title,
+    description: article.description,
+    body: article.body,
     tags: [],
-    userID: parseInt(user_id),
+    userID: parseInt(article.user_id),
     author: {
-        id: parseInt(u_id),
-        username,
-        email,
+        id: parseInt(article.u_id ?? '0'),
+        username: article.username ?? '',
+        email: article.email ?? '',
         plainPassword: '',
-        hashedPassword: password,
-        name,
-        bio,
-        image,
-        createdAt: u_created_at,
-        updatedAt: u_updated_at,
+        hashedPassword: article.password ?? '',
+        name: article.name ?? '',
+        bio: article.bio ?? '',
+        image: article.image ?? '',
+        createdAt: article.u_created_at ?? new Date(),
+        updatedAt: article.u_updated_at ?? new Date(),
     },
-    favoritesCount: parseInt(favorites_count),
-    createdAt: created_at,
-    updatedAt: updated_at,
+    favoritesCount: parseInt(article.favorites_count),
+    createdAt: article.created_at,
+    updatedAt: article.updated_at,
 });
