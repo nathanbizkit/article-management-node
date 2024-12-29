@@ -5,6 +5,7 @@ import { getAllTags } from './tag.handler';
 import {
     login,
     loginValidator,
+    refreshToken,
     register,
     registerValidator,
 } from './auth.handler';
@@ -15,6 +16,7 @@ publicRouter.use(express.json());
 
 publicRouter.get('/login', loginValidator, login);
 publicRouter.post('register', registerValidator, register);
+publicRouter.post('/refresh_token', refreshToken);
 publicRouter.get('/tags', getAllTags);
 
 export default publicRouter;

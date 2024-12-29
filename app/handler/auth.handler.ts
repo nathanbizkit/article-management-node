@@ -1,6 +1,11 @@
 'use strict';
 
-import { generateToken, refreshTTL, sessionTTL } from '@app/auth/jwt.auth';
+import {
+    generateToken,
+    parseToken,
+    refreshTTL,
+    sessionTTL,
+} from '@app/auth/jwt.auth';
 import { AuthenticationError } from '@app/auth/jwt.types';
 import PostgresDB from '@app/db/postgres.db';
 import {
@@ -9,7 +14,7 @@ import {
     validateUser,
 } from '@app/model/user.model';
 import { User } from '@app/model/user.types';
-import { createUser, getUserByEmail } from '@app/store/user.store';
+import { createUser, getUserByEmail, getUserByID } from '@app/store/user.store';
 import { buildValidationMessage } from '@app/util/validator';
 import { Request, Response } from 'express';
 import { checkSchema, validationResult } from 'express-validator';
@@ -38,7 +43,7 @@ export const loginValidator = checkSchema({
 });
 
 /**
- * Logins a user and sets session and refresh token in cookies
+ * Logs a user in and sets session and refresh token in cookies
  * @param req a {@link Request} object from `express`
  * @param res a {@link Response} object from `express`
  */
@@ -73,7 +78,7 @@ export const login = async (req: Request, res: Response) => {
             httpOnly: true,
             maxAge: sessionTTL * 1000,
         });
-        res.cookie('session', refresh, {
+        res.cookie('refreshToken', refresh, {
             path,
             secure: true,
             httpOnly: true,
@@ -109,7 +114,7 @@ export const registerValidator = checkSchema({
 });
 
 /**
- * Register a new user and sets session and refresh token in cookies
+ * Registers a new user and sets session and refresh token in cookies
  * @param req a {@link Request} object from `express`
  * @param res a {@link Response} object from `express`
  */
@@ -151,7 +156,7 @@ export const register = async (req: Request, res: Response) => {
             httpOnly: true,
             maxAge: sessionTTL * 1000,
         });
-        res.cookie('session', refresh, {
+        res.cookie('refreshToken', refresh, {
             path,
             secure: true,
             httpOnly: true,
@@ -166,6 +171,61 @@ export const register = async (req: Request, res: Response) => {
             err.code === pgpErrors.queryResultErrorCode.noData
         ) {
             res.status(500).json({ error: 'failed to create a user' });
+        } else if (err instanceof AuthenticationError) {
+            res.status(500).json({ error: 'failed to generate token' });
+        } else if (err instanceof Error) {
+            res.status(500).json({
+                error:
+                    err instanceof Error
+                        ? err.message
+                        : 'internal server error',
+            });
+        } else {
+            res.status(500).json({ error: 'internal server error' });
+        }
+    }
+};
+
+/**
+ * Refreshes tokens using a refresh token in cookies
+ * @param req a {@link Request} object from `express`
+ * @param res a {@link Response} object from `express`
+ */
+export const refreshToken = async (req: Request, res: Response) => {
+    const { refreshToken = '' } = req.cookies;
+    if (!refreshToken) {
+        res.status(400).json({ error: 'refresh token is empty' });
+    }
+
+    try {
+        const pgdb = req.app.get('postgres db') as PostgresDB;
+        const { AUTH_JWT_SECRET_KEY: key = '' } = process.env;
+
+        const uid = await parseToken(refreshToken, key);
+        const user = await getUserByID(pgdb.db, uid);
+
+        const path = req.app.get('cookie path') ?? '/';
+        const [session, refresh] = await createTokens(user.id);
+
+        res.cookie('session', session, {
+            path,
+            secure: true,
+            httpOnly: true,
+            maxAge: sessionTTL * 1000,
+        });
+        res.cookie('refreshToken', refresh, {
+            path,
+            secure: true,
+            httpOnly: true,
+            maxAge: refreshTTL * 1000,
+        });
+        res.status(204);
+    } catch (err) {
+        if (
+            err instanceof pgpErrors.QueryResultError &&
+            err.code === pgpErrors.queryResultErrorCode.noData
+        ) {
+            res.status(404).json({ error: 'user not found' });
         } else if (err instanceof AuthenticationError) {
             res.status(500).json({ error: 'failed to generate token' });
         } else if (err instanceof Error) {
