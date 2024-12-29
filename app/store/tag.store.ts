@@ -1,16 +1,28 @@
 'use strict';
 
-import { mapTagFromDB, Tag } from '@app/model/tag.model';
+import { mapTagFromDB } from '@app/model/tag.model';
+import { Tag } from '@app/model/tag.types';
 import { IDatabase, ITask } from 'pg-promise';
 
-// getTags gets all tags
-export const getTags = async <T>(db: IDatabase<T> | ITask<T>) => {
+/**
+ * Gets all tags
+ * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
+ * @returns an array of {@link Tag}
+ */
+export const getTags = async <T>(
+    db: IDatabase<T> | ITask<T>,
+): Promise<Tag[]> => {
     const queryString = `SELECT id, name, created_at, updated_at 
 		FROM "article_management".tags`;
-    return db.map(queryString, [], mapTagFromDB);
+    return await db.map(queryString, [], mapTagFromDB);
 };
 
-// getTagsByArticleID returns all tags of a specifc article
+/**
+ * Gets all tags of a specific article
+ * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
+ * @param articleID an article id
+ * @returns an array of {@link Tag}
+ */
 export const getTagsByArticleID = async <T>(
     db: IDatabase<T> | ITask<T>,
     articleID: number,
@@ -20,10 +32,15 @@ export const getTagsByArticleID = async <T>(
       FROM article_management.tags t 
       INNER JOIN article_management.article_tags at ON at.tag_id = t.id 
       WHERE at.article_id = $1`;
-    return db.map(queryString, [articleID], mapTagFromDB);
+    return await db.map(queryString, [articleID], mapTagFromDB);
 };
 
-// getTagsByArticleIDs returns all tags for specific articles
+/**
+ * Gets all tags of multiple number of specific articles
+ * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
+ * @param articleIDs an array of article ids
+ * @returns a map of tags of specific articles
+ */
 export const getTagsByArticleIDs = async <T>(
     db: IDatabase<T> | ITask<T>,
     articleIDs: number[],
@@ -33,15 +50,18 @@ export const getTagsByArticleIDs = async <T>(
       FROM "article_management".article_tags at 
       INNER JOIN "article_management".tags t ON t.id = at.tag_id 
       WHERE at.article_id = ANY($1:csv)`;
-    const tags = await db.map(queryString, [articleIDs], mapTagFromDB);
-
-    return tags.reduce(
-        (acc, tag) => {
-            return {
-                ...acc,
-                [tag.articleID ?? 0]: [...(acc[tag.articleID ?? 0] || []), tag],
-            };
-        },
-        {} as Record<number, Tag[]>,
+    return await db.map(queryString, [articleIDs], mapTagFromDB).then((tags) =>
+        tags.reduce(
+            (acc, tag) => {
+                return {
+                    ...acc,
+                    [tag.articleID ?? 0]: [
+                        ...(acc[tag.articleID ?? 0] || []),
+                        tag,
+                    ],
+                };
+            },
+            {} as Record<number, Tag[]>,
+        ),
     );
 };

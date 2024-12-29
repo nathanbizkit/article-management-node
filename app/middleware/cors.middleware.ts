@@ -2,7 +2,10 @@
 
 import { CorsOptions } from 'cors';
 
-// corsOptions returns custom options for cors middleware
+/**
+ * Gets cors options that with dynamic origin inherited from env
+ * @returns a {@link CorsOptions} object that `cors` middleware can use
+ */
 export const corsOptions = (): CorsOptions => {
     const { CORS_ALLOWED_ORIGINS: origin = '*' } = process.env;
     const corsOptions: CorsOptions = {

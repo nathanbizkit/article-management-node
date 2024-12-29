@@ -1,9 +1,15 @@
 'use strict';
 
-import { mapUserFromDB, User } from '@app/model/user.model';
+import { mapUserFromDB } from '@app/model/user.model';
+import { User } from '@app/model/user.types';
 import { IDatabase, ITask } from 'pg-promise';
 
-// getUserByID finds a user by id
+/**
+ * Gets a user by an id
+ * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
+ * @param id a user's id
+ * @returns a {@link User} object
+ */
 export const getUserByID = async <T>(
     db: IDatabase<T> | ITask<T>,
     id: number,
@@ -12,10 +18,15 @@ export const getUserByID = async <T>(
 		id, username, email, password, name, bio, image, created_at, updated_at 
 		FROM "article_management".users 
 		WHERE id = $1`;
-    return db.one(queryString, [id], mapUserFromDB);
+    return await db.one(queryString, [id], mapUserFromDB);
 };
 
-// getUserByID finds a user by email
+/**
+ * Gets a user by an email
+ * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
+ * @param email a user's email
+ * @returns a {@link User} object
+ */
 export const getUserByEmail = async <T>(
     db: IDatabase<T> | ITask<T>,
     email: string,
@@ -24,10 +35,15 @@ export const getUserByEmail = async <T>(
 		id, username, email, password, name, bio, image, created_at, updated_at 
 		FROM "article_management".users 
 		WHERE email = $1`;
-    return db.one(queryString, [email], mapUserFromDB);
+    return await db.one(queryString, [email], mapUserFromDB);
 };
 
-// getUserByID finds a user by username
+/**
+ * Gets a user by a username
+ * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
+ * @param username a user's username
+ * @returns a {@link User} object
+ */
 export const getUserByUsername = async <T>(
     db: IDatabase<T> | ITask<T>,
     username: string,
@@ -36,15 +52,20 @@ export const getUserByUsername = async <T>(
 		id, username, email, password, name, bio, image, created_at, updated_at 
 		FROM "article_management".users 
 		WHERE username = $1`;
-    return db.one(queryString, [username], mapUserFromDB);
+    return await db.one(queryString, [username], mapUserFromDB);
 };
 
-// createUser creates a user and returns the newly created user
+/**
+ * Creates a new user
+ * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
+ * @param user a {@link User} object
+ * @returns a created {@link User} object with a generated id
+ */
 export const createUser = async <T>(
     db: IDatabase<T> | ITask<T>,
     user: User,
 ): Promise<User> =>
-    db.tx(async (t: ITask<T>) => {
+    await db.tx(async (t: ITask<T>) => {
         const queryString = `INSERT INTO "article_management".users 
             (username, email, password, name, bio, image) VALUES ($1, $2, $3, $4, $5, $6) 
             RETURNING id, username, email, password, name, bio, image, created_at, updated_at`;
@@ -62,12 +83,17 @@ export const createUser = async <T>(
         );
     });
 
-// updateUser updates a user (for username, email, password, name, bio, image)
+/**
+ * Updates a user only for these fields: `username`, `email`, `password`, `name`, `bio`, `image`
+ * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
+ * @param user a {@link User} object
+ * @returns an updated {@link User} object with an updated timestamp
+ */
 export const updateUser = async <T>(
     db: IDatabase<T> | ITask<T>,
     user: User,
 ): Promise<User> =>
-    db.tx(async (t: ITask<T>) => {
+    await db.tx(async (t: ITask<T>) => {
         const queryString = `UPDATE "article_management".users 
             SET username = $1, email = $2, password = $3, name = $4, bio = $5, image = $6, updated_at = DEFAULT 
             WHERE id = $7 
@@ -87,43 +113,70 @@ export const updateUser = async <T>(
         );
     });
 
-// isFollowing returns wheter user A follows user B
+/**
+ * Checks whether user A follows user B
+ * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
+ * @param a a {@link User} object
+ * @param b a {@link User} object
+ * @returns `true` if `a` follows `b`, otherwise `false`
+ */
 export const isFollowing = async <T>(
     db: IDatabase<T> | ITask<T>,
     a?: User,
     b?: User,
 ): Promise<boolean> => {
-    if (a === null || a === undefined || b === null || b === undefined) {
-        return false;
-    }
+    if (!a || !b) return false;
 
     const queryString = `SELECT COUNT(to_user_id) 
 		FROM "article_management".follows 
 		WHERE from_user_id = $1 AND to_user_id = $2`;
-    const count = await db.one(queryString, [a.id, b.id], (c) =>
-        parseInt(c.count),
-    );
-
-    return count !== 0;
+    return await db
+        .one(queryString, [a.id, b.id], (c) => +c.count)
+        .then((count) => count !== 0);
 };
 
-// follow creates a follow relationship from user A to user B
-export const follow = <T>(db: IDatabase<T> | ITask<T>, a: User, b: User) =>
-    db.tx(async (t: ITask<T>) => {
+/**
+ * Creates a following relationship from user A to user B
+ * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
+ * @param a a {@link User} object
+ * @param b a {@link User} object
+ * @returns
+ */
+export const follow = async <T>(
+    db: IDatabase<T> | ITask<T>,
+    a: User,
+    b: User,
+) =>
+    await db.tx(async (t: ITask<T>) => {
         const queryString = `INSERT INTO "article_management".follows 
-			(from_user_id, to_user_id) VALUES ($1, $2)`;
+            (from_user_id, to_user_id) VALUES ($1, $2)`;
         return t.none(queryString, [a.id, b.id]);
     });
 
-// unfollow deletes a follow relationship from user A to user B
-export const unfollow = <T>(db: IDatabase<T> | ITask<T>, a: User, b: User) =>
-    db.tx(async (t: ITask<T>) => {
+/**
+ * Deletes a following relationship from user A to user B
+ * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
+ * @param a a {@link User} object
+ * @param b a {@link User} object
+ * @returns
+ */
+export const unfollow = async <T>(
+    db: IDatabase<T> | ITask<T>,
+    a: User,
+    b: User,
+) =>
+    await db.tx(async (t: ITask<T>) => {
         const queryString = `DELETE FROM "article_management".follows 
-			WHERE from_user_id = $1 AND to_user_id = $2`;
+            WHERE from_user_id = $1 AND to_user_id = $2`;
         return t.none(queryString, [a.id, b.id]);
     });
 
-// getFollowingUserIDs returns user ids that current user follows
+/**
+ * Gets a list of user ids that the current user follows
+ * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
+ * @param user a {@link User} object
+ * @returns an arroy of user ids
+ */
 export const getFollowingUserIDs = async <T>(
     db: IDatabase<T> | ITask<T>,
     user: User,
@@ -131,5 +184,5 @@ export const getFollowingUserIDs = async <T>(
     const queryString = `SELECT to_user_id AS id
         FROM "article_management".follows 
         WHERE from_user_id = $1`;
-    return db.map(queryString, [user.id], (row) => parseInt(row.id));
+    return await db.map(queryString, [user.id], (row) => +row.id);
 };

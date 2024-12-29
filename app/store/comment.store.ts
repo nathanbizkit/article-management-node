@@ -1,10 +1,16 @@
 'use strict';
 
-import { Comment, mapCommentFromDB } from '@app/model/comment.model';
+import { mapCommentFromDB } from '@app/model/comment.model';
 import { IDatabase, ITask } from 'pg-promise';
 import { getUserByID } from './user.store';
+import { Comment } from '@app/model/comment.types';
 
-// getCommentsByID finds a comment from id
+/**
+ * Gets a comment by an id
+ * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
+ * @param id a comment's id
+ * @returns a {@link Comment} object
+ */
 export const getCommentsByID = async <T>(
     db: IDatabase<T> | ITask<T>,
     id: number,
@@ -16,10 +22,15 @@ export const getCommentsByID = async <T>(
 		FROM "article_management".comments c 
 		INNER JOIN "article_management".users u ON u.id = c.user_id 
 		WHERE c.id = $1`;
-    return db.map(queryString, [id], mapCommentFromDB);
+    return await db.map(queryString, [id], mapCommentFromDB);
 };
 
-// getCommentsByArticleID gets comments of the article
+/**
+ * Gets comments by an article id
+ * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
+ * @param articleID
+ * @returns an array of {@link Comment}
+ */
 export const getCommentsByArticleID = async <T>(
     db: IDatabase<T> | ITask<T>,
     articleID: number,
@@ -32,15 +43,20 @@ export const getCommentsByArticleID = async <T>(
 		INNER JOIN "article_management".users u ON u.id = c.user_id 
 		WHERE c.article_id = $1 
 		ORDER BY c.created_at DESC`;
-    return db.map(queryString, [articleID], mapCommentFromDB);
+    return await db.map(queryString, [articleID], mapCommentFromDB);
 };
 
-// createComment creates a comment of the article
+/**
+ * Creates a new comment of an article
+ * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
+ * @param comment a {@link Comment} object
+ * @returns a created {@link Comment} with a generated id
+ */
 export const createComment = async <T>(
     db: IDatabase<T> | ITask<T>,
     comment: Comment,
-) =>
-    db.tx(async (t: ITask<T>) => {
+): Promise<Comment> =>
+    await db.tx(async (t: ITask<T>) => {
         const queryString = `INSERT INTO "article_management".comments 
             (body, user_id, article_id) VALUES ($1, $2, $3) 
             RETURNING id, body, user_id, article_id, created_at, updated_at`;
@@ -49,17 +65,21 @@ export const createComment = async <T>(
             [comment.body, comment.userID, comment.articleID],
             mapCommentFromDB,
         );
-
         createdComment.author = await getUserByID(t, createdComment.userID);
         return createdComment;
     });
 
-// deleteComment deletes a comment
+/**
+ * Deletes a comment
+ * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
+ * @param comment a {@link Comment} object
+ * @returns
+ */
 export const deleteComment = async <T>(
     db: IDatabase<T> | ITask<T>,
     comment: Comment,
 ) =>
-    db.tx((t: ITask<T>) =>
+    await db.tx((t: ITask<T>) =>
         t.none(`DELETE FROM "article_management".comments WHERE id = $1`, [
             comment.id,
         ]),

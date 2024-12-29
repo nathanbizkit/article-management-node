@@ -44,7 +44,7 @@ const {
 
 const httpServer = new http.Server(app);
 
-const appPort = parseInt(APP_PORT);
+const appPort = +APP_PORT;
 httpServer.listen(appPort, () => {
     console.log(`api server running on port ${appPort}`);
 });
@@ -57,7 +57,7 @@ if (TLS_KEY_FILE !== '' && TLS_CERT_FILE !== '') {
     };
     httpsServer = new https.Server(options, app);
 
-    const appTLSPort = parseInt(APP_TLS_PORT);
+    const appTLSPort = +APP_TLS_PORT;
     httpsServer.listen(appTLSPort, () => {
         console.log(
             `api server running on port ${appTLSPort} (ssl connection)`,

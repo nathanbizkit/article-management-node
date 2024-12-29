@@ -1,18 +1,25 @@
 'use strict';
 
-import { Article, mapArticleFromDB } from '@app/model/article.model';
+import { mapArticleFromDB } from '@app/model/article.model';
 import { getTagsByArticleID, getTagsByArticleIDs } from './tag.store';
 import { IDatabase, ITask } from 'pg-promise';
 import { getUserByID } from './user.store';
 import { mapTagFromDB } from '@app/model/tag.model';
-import { User } from '@app/model/user.model';
+import { Article } from '@app/model/article.types';
+import { User } from '@app/model/user.types';
+import { GetArticlesOptions, GetFeedArticlesOptions } from './article.types';
 
-// getArticleByID find an article by id
+/**
+ * Gets an article by an id
+ * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
+ * @param id an article's id
+ * @returns a {@link Article} object
+ */
 export const getArticleByID = async <T>(
     db: IDatabase<T> | ITask<T>,
     id: number,
 ): Promise<Article> =>
-    db.tx(async (t: ITask<T>) => {
+    await db.tx(async (t: ITask<T>) => {
         const queryString = `SELECT 
             a.id, a.title, a.description, a.body, a.user_id, a.favorites_count, 
             a.created_at, a.updated_at, 
@@ -26,12 +33,17 @@ export const getArticleByID = async <T>(
         return article;
     });
 
-// createArticle creates an article and returns the newly created article
+/**
+ * Creates a new article
+ * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
+ * @param article an {@link Article} object
+ * @returns a created {@link Article} object with a generated id
+ */
 export const createArticle = async <T>(
     db: IDatabase<T> | ITask<T>,
     article: Article,
 ): Promise<Article> =>
-    db.tx(async (t: ITask<T>) => {
+    await db.tx(async (t: ITask<T>) => {
         const queryString = `INSERT INTO "article_management".articles 
             (title, description, body, user_id) VALUES ($1, $2, $3, $4) 
             RETURNING id, title, description, body, user_id, favorites_count, created_at, updated_at`;
@@ -76,12 +88,17 @@ export const createArticle = async <T>(
         return createdArticle;
     });
 
-// updateArticle updates an article (for title, description, body)
+/**
+ * Updates an article only for these fields: `title`, `description`, `body`
+ * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
+ * @param article an {@link Article} object
+ * @returns an updated {@link Article} with an updated timestamp
+ */
 export const updateArticle = async <T>(
     db: IDatabase<T> | ITask<T>,
     article: Article,
 ): Promise<Article> =>
-    db.tx(async (t: ITask<T>) => {
+    await db.tx(async (t: ITask<T>) => {
         const queryString = `UPDATE "article_management".articles 
             SET title = $1, description = $2, body = $3, updated_at = DEFAULT 
             WHERE id = $4 
@@ -100,21 +117,16 @@ export const updateArticle = async <T>(
         return updatedArticle;
     });
 
-// PaginationOptions model
-export interface PaginationOptions {
-    limit?: number;
-    offset?: number;
-}
-
-// GetArticlesOptions model
-export interface GetArticlesOptions {
-    tagName?: string;
-    username?: string;
-    favoritedBy?: User;
-    pagination?: PaginationOptions;
-}
-
-// getArticles gets global articles
+/**
+ * Gets all global articles
+ * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
+ * @param options.tagName a specific tag name
+ * @param options.username an author's username
+ * @param options.favoritedBy a user's id
+ * @param options.pagination.limit a query's limit
+ * @param options.pagination.offset a query's offset
+ * @returns an array of {@link Article}
+ */
 export const getArticles = async <T>(
     db: IDatabase<T> | ITask<T>,
     options: GetArticlesOptions = {},
@@ -129,8 +141,7 @@ export const getArticles = async <T>(
 
     let condCount = 0;
     let condStrings: string[] = [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let condArgs: any[] = [];
+    let condArgs: (string | number | number[])[] = [];
 
     if (options.username) {
         condStrings = [...condStrings, `u.username = $${++condCount}`];
@@ -144,14 +155,14 @@ export const getArticles = async <T>(
         condArgs = [...condArgs, options.tagName];
     }
 
-    if (options.favoritedBy !== null || options.favoritedBy !== undefined) {
+    if (options.favoritedBy) {
         const queryString = `SELECT article_id AS id 
 			FROM "article_management".favorite_articles 
 			WHERE user_id = $1`;
         const articleIDs = await db.map(
             queryString,
             [options.favoritedBy?.id],
-            (row) => row.id,
+            (row) => +row.id,
         );
         condStrings = [...condStrings, `a.id = ANY($${++condCount}:csv)`];
         condArgs = [...condArgs, articleIDs];
@@ -187,12 +198,14 @@ export const getArticles = async <T>(
     }));
 };
 
-// GetFeedArticlesOptions model
-export interface GetFeedArticlesOptions {
-    pagination?: PaginationOptions;
-}
-
-// getFeedArticles gets following users' articles
+/**
+ * Gets feed articles from the following users
+ * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
+ * @param userIDs an array of user ids
+ * @param options.pagination.limit a query's limit
+ * @param options.pagination.offset a query's offset
+ * @returns an array of {@link Article}
+ */
 export const getFeedArticles = async <T>(
     db: IDatabase<T> | ITask<T>,
     userIDs: number[],
@@ -209,8 +222,7 @@ export const getFeedArticles = async <T>(
 		ORDER BY a.created_at DESC`;
 
     let condCount = 1;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let condArgs: any = [];
+    let condArgs: number[] = [];
 
     const limit = options.pagination?.limit ?? -1;
     const offset = options.pagination?.offset ?? 0;
@@ -241,49 +253,57 @@ export const getFeedArticles = async <T>(
     }));
 };
 
-// deleteArticle deletes an article
+/**
+ * Deletes an article
+ * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
+ * @param article an {@link Article} object
+ * @returns
+ */
 export const deleteArticle = async <T>(
     db: IDatabase<T> | ITask<T>,
     article: Article,
 ) =>
-    db.tx((t: ITask<T>) =>
+    await db.tx((t: ITask<T>) =>
         t.none(`DELETE FROM "article_management".articles WHERE id = $1`, [
             article.id,
         ]),
     );
 
-// isFavorited checks whether the article is favorited by the user
+/**
+ * Checks whether the article is favorited by the user
+ * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
+ * @param article an {@link Article} object
+ * @param user a {@link User} object
+ * @returns `true` if the article is favorited by the user, otherwise `false`
+ */
 export const isFavorited = async <T>(
     db: IDatabase<T> | ITask<T>,
     article?: Article,
     user?: User,
 ): Promise<boolean> => {
-    if (
-        article === null ||
-        article === undefined ||
-        user === null ||
-        user === undefined
-    ) {
-        return false;
-    }
+    if (!article || !user) return false;
 
     const queryString = `SELECT COUNT(article_id) 
 		FROM "article_management".favorite_articles 
 		WHERE article_id = $1 AND user_id = $2`;
-    const count = await db.one(queryString, [article.id, user.id], (c) =>
-        parseInt(c.count),
-    );
-
-    return count !== 0;
+    return await db
+        .one(queryString, [article.id, user.id], (c) => +c.count)
+        .then((count) => count !== 0);
 };
 
-// addFavorite favorites an article
+/**
+ * Favorites an article
+ * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
+ * @param article an {@link Article} object
+ * @param user a {@link User} object
+ * @returns an object that contains updated favorites count and timestamp
+ */
 export const addFavorite = async <T>(
     db: IDatabase<T> | ITask<T>,
     article: Article,
     user: User,
 ): Promise<{ favoritesCount: number; updatedAt: Date }> =>
-    db.tx(async (t: ITask<T>) => {
+    await db.tx(async (t: ITask<T>) => {
         let queryString = `INSERT INTO "article_management".favorite_articles 
 			(article_id, user_id) VALUES ($1, $2)`;
         await t.none(queryString, [article.id, user.id]);
@@ -298,13 +318,19 @@ export const addFavorite = async <T>(
         }));
     });
 
-// deleteFavorite unfavorites an article
+/**
+ * Unfavorites an article
+ * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
+ * @param article an {@link Article} object
+ * @param user a {@link User} object
+ * @returns an object that contains updated favorites cound and timestmap
+ */
 export const deleteFavorite = async <T>(
     db: IDatabase<T> | ITask<T>,
     article: Article,
     user: User,
 ): Promise<{ favoritesCount: number; updatedAt: Date }> =>
-    db.tx(async (t: ITask<T>) => {
+    await db.tx(async (t: ITask<T>) => {
         let queryString = `DELETE FROM "article_management".favorite_articles 
 			WHERE article_id = $1 AND user_id = $2`;
         await t.none(queryString, [article.id, user.id]);

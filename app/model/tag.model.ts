@@ -1,26 +1,15 @@
 'use strict';
 
-// Tag model
-export type Tag = {
-    id: number;
-    name: string;
-    createdAt: Date;
-    updatedAt: Date;
-};
+import { Tag, TagFromDB } from './tag.types';
 
-// TagFromDB model
-export type TagFromDB = {
-    a_id: string;
-    id: string;
-    name: string;
-    created_at: Date;
-    updated_at: Date;
-};
-
-// mapTagFromDB returns a tag object mapping from database record
+/**
+ * Maps a database record into a tag object
+ * @param tag a {@link TagFromDB} database record
+ * @returns a {@link Tag} object with an optional `articleID`
+ */
 export const mapTagFromDB = (tag: TagFromDB): Tag & { articleID?: number } => ({
-    articleID: tag.a_id ? parseInt(tag.a_id) : undefined,
-    id: parseInt(tag.id),
+    articleID: +(tag.a_id ?? '0'),
+    id: +tag.id,
     name: tag.name,
     createdAt: tag.created_at,
     updatedAt: tag.updated_at,

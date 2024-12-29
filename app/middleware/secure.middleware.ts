@@ -2,7 +2,13 @@
 
 import { NextFunction, Request, Response } from 'express';
 
-// secure attaches secure tls middleware to http engine
+/**
+ * Attaches a middleware that redirects incoming http request to https when appropriate
+ * @param req a {@link Request} object from `express`
+ * @param res a {@link Response} object from `express
+ * @param next a {@link NextFunction} function from `express`
+ * @returns
+ */
 const secure = (req: Request, res: Response, next: NextFunction) => {
     if (
         !req.secure &&

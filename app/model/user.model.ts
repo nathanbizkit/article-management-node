@@ -1,21 +1,13 @@
 'use strict';
 
-import Joi from 'joi';
-import Bcrypt from 'bcrypt';
-
-// User model
-export type User = {
-    id: number;
-    username: string;
-    email: string;
-    plainPassword: string;
-    hashedPassword: string;
-    name: string;
-    bio: string;
-    image: string;
-    createdAt: Date;
-    updatedAt: Date;
-};
+import * as Joi from 'joi';
+import * as Bcrypt from 'bcrypt';
+import {
+    User,
+    UserFromDB,
+    UserProfile,
+    UserProfileOptions,
+} from './user.types';
 
 const schema = Joi.object({
     username: Joi.string()
@@ -23,25 +15,32 @@ const schema = Joi.object({
         .min(5)
         .max(100)
         .required(),
-
     plainPassword: Joi.string()
         .pattern(/^(?=.*\d)(?=.*[!@#$%^&*_.])(?=.*[a-z])(?=.*[A-Z]).+$/)
         .min(7)
         .max(50)
         .required(),
-
     email: Joi.string().email().min(5).max(100).required(),
     name: Joi.string().min(5).max(100).required(),
     bio: Joi.string().max(255),
     image: Joi.string().max(255),
 });
 
-// validateUser validates fields of user model
+/**
+ * Validates fields of a user object
+ * @param user a {@link User} object
+ * @returns either a {@link Joi.ValidationResult<User>} or a {@link Joi.ValidationError}
+ */
 export const validateUser = async (
     user: User,
 ): Promise<Joi.ValidationResult<User>> => await schema.validateAsync(user);
 
-// overwriteUser overwrites each field if it's not falsy-value
+/**
+ * Overwrites each fields of `a` with `b` if it's not falsy value
+ * @param a a {@link User} object to be overwritten
+ * @param b a {@link User} object to overwrite
+ * @returns an overwritten {@link User} object
+ */
 export const overwriteUser = (a: User, b: User): User => ({
     ...a,
     username: b.username.trim() || a.username,
@@ -52,33 +51,33 @@ export const overwriteUser = (a: User, b: User): User => ({
     image: b.image,
 });
 
-// hashUserPassword encrypts user's password and stores it as hashed password
+/**
+ * Encrypts a plain password
+ * @param plain a plain password
+ * @returns a hashed password
+ */
 export const hashUserPassword = async (plain: string): Promise<string> =>
     !plain || plain === ''
-        ? await Promise.reject(new Error('plain password is empty'))
+        ? await Promise.reject(new Error('password is empty'))
         : await Bcrypt.hash(plain, 10);
 
-// checkPassword checks if user's password is matched with hashed password
+/**
+ * Checks whether a user's password is matched with a hashed one
+ * @param hashed a password that is already hashed
+ * @param plain a plain password
+ * @returns `true` if the plain password is matched, otherwise `false`
+ */
 export const checkPassword = async (
     hashed: string,
     plain: string,
 ): Promise<boolean> => await Bcrypt.compare(plain, hashed);
 
-// UserProfile model
-export type UserProfile = {
-    username: string;
-    name: string;
-    bio: string;
-    image: string;
-    following: boolean;
-};
-
-// UserProfileOptions model
-export interface UserProfileOptions {
-    following?: boolean;
-}
-
-// buildUserProfile generates user's profile information
+/**
+ * Builds a user's profile object from a user object
+ * @param user a {@link User} object
+ * @param options.following Whether the current user follows the user of this profile
+ * @returns a {@link UserProfile} object
+ */
 export const buildUserProfile = (
     user: User,
     options: UserProfileOptions = {},
@@ -90,22 +89,13 @@ export const buildUserProfile = (
     following: options.following ?? false,
 });
 
-// UserFromDB model
-export type UserFromDB = {
-    id: string;
-    username: string;
-    email: string;
-    password: string;
-    name: string;
-    bio: string;
-    image: string;
-    created_at: Date;
-    updated_at: Date;
-};
-
-// mapUserFromDB returns a user object mapping from database record
+/**
+ * Maps a database record into a user object
+ * @param user a {@link UserFromDB} database record
+ * @returns a {@link User} object
+ */
 export const mapUserFromDB = (user: UserFromDB): User => ({
-    id: parseInt(user.id),
+    id: +user.id,
     username: user.username,
     email: user.email,
     plainPassword: '',
