@@ -64,13 +64,12 @@ export const login = async (req: Request, res: Response) => {
     try {
         const pgdb = req.app.get('postgres db') as PostgresDB;
         const { email, password } = req.body;
-
         const user = await getUserByEmail(pgdb.db, email);
-
         const isValidPassword = await checkPassword(
             user.hashedPassword,
             password,
         );
+
         if (!isValidPassword) {
             res.status(400).json({ error: 'invalid password ' });
             return;
@@ -97,7 +96,7 @@ export const login = async (req: Request, res: Response) => {
             err instanceof pgpErrors.QueryResultError &&
             err.code === pgpErrors.queryResultErrorCode.noData
         ) {
-            res.status(404).json({ error: 'user not found' });
+            res.status(404).json({ error: 'data not found' });
         } else if (err instanceof AuthenticationError) {
             res.status(500).json({ error: 'failed to generate token' });
         } else if (err instanceof Error) {
@@ -149,9 +148,7 @@ export const register = async (req: Request, res: Response) => {
         };
 
         await validateUser(user);
-
         user.hashedPassword = await hashUserPassword(user.plainPassword);
-
         const createdUser = await createUser(pgdb.db, user);
 
         const path = req.app.get('cookie path') ?? '/';
@@ -232,7 +229,7 @@ export const refreshToken = async (req: Request, res: Response) => {
             err instanceof pgpErrors.QueryResultError &&
             err.code === pgpErrors.queryResultErrorCode.noData
         ) {
-            res.status(404).json({ error: 'user not found' });
+            res.status(404).json({ error: 'data not found' });
         } else if (err instanceof AuthenticationError) {
             res.status(500).json({ error: 'failed to generate token' });
         } else if (err instanceof Error) {
@@ -280,7 +277,7 @@ export const getCurrentUser = async (req: Request, res: Response) => {
             err instanceof pgpErrors.QueryResultError &&
             err.code === pgpErrors.queryResultErrorCode.noData
         ) {
-            res.status(404).json({ error: 'user not found' });
+            res.status(404).json({ error: 'data not found' });
         } else if (err instanceof AuthenticationError) {
             res.status(500).json({ error: 'failed to generate token' });
         } else if (err instanceof Error) {
@@ -365,11 +362,13 @@ export const updateCurrentUser = async (req: Request, res: Response) => {
         });
         res.status(200).json(buildUserProfile(updatedUser));
     } catch (err) {
-        if (
+        if (err instanceof ValidationError) {
+            res.status(400).json({ error: buildValidationMessage(err) });
+        } else if (
             err instanceof pgpErrors.QueryResultError &&
             err.code === pgpErrors.queryResultErrorCode.noData
         ) {
-            res.status(404).json({ error: 'user not found' });
+            res.status(404).json({ error: 'data not found' });
         } else if (err instanceof AuthenticationError) {
             res.status(500).json({ error: 'failed to generate token' });
         } else if (err instanceof Error) {

@@ -11,10 +11,10 @@ import { Comment } from '@app/model/comment.types';
  * @param id a comment's id
  * @returns a {@link Comment} object
  */
-export const getCommentsByID = async <T>(
+export const getCommentByID = async <T>(
     db: IDatabase<T> | ITask<T>,
     id: number,
-): Promise<Comment[]> => {
+): Promise<Comment> => {
     const queryString = `SELECT 
 		c.id, c.body, c.user_id, c.article_id, c.created_at, c.updated_at, 
 		u.id AS u_id, u.username, u.email, u.password, u.name, u.bio, u.image, 
@@ -22,7 +22,7 @@ export const getCommentsByID = async <T>(
 		FROM "article_management".comments c 
 		INNER JOIN "article_management".users u ON u.id = c.user_id 
 		WHERE c.id = $1`;
-    return await db.map(queryString, [id], mapCommentFromDB);
+    return await db.one(queryString, [id], mapCommentFromDB);
 };
 
 /**

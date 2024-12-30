@@ -33,7 +33,7 @@ export const showProfile = async (req: Request, res: Response) => {
             err instanceof pgpErrors.QueryResultError &&
             err.code === pgpErrors.queryResultErrorCode.noData
         ) {
-            res.status(404).json({ error: 'user not found' });
+            res.status(404).json({ error: 'data not found' });
         } else if (err instanceof Error) {
             res.status(500).json({
                 error:
@@ -65,7 +65,6 @@ export const followUser = async (req: Request, res: Response) => {
         }
 
         const user = await getUserByUsername(pgdb.db, username);
-
         const following = await isFollowing(pgdb.db, currentUser, user);
         if (following) {
             res.status(500).json({
@@ -82,7 +81,7 @@ export const followUser = async (req: Request, res: Response) => {
             err instanceof pgpErrors.QueryResultError &&
             err.code === pgpErrors.queryResultErrorCode.noData
         ) {
-            res.status(404).json({ error: 'user not found' });
+            res.status(404).json({ error: 'data not found' });
         } else if (err instanceof Error) {
             res.status(500).json({
                 error:
@@ -114,7 +113,6 @@ export const unfollowUser = async (req: Request, res: Response) => {
         }
 
         const user = await getUserByUsername(pgdb.db, username);
-
         const following = await isFollowing(pgdb.db, currentUser, user);
         if (!following) {
             res.status(500).json({
@@ -131,7 +129,7 @@ export const unfollowUser = async (req: Request, res: Response) => {
             err instanceof pgpErrors.QueryResultError &&
             err.code === pgpErrors.queryResultErrorCode.noData
         ) {
-            res.status(404).json({ error: 'user not found' });
+            res.status(404).json({ error: 'data not found' });
         } else if (err instanceof Error) {
             res.status(500).json({
                 error:

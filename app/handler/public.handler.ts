@@ -9,6 +9,7 @@ import {
     register,
     registerValidator,
 } from './auth.handler';
+import { getArticleComments } from './comment.handler';
 
 const publicRouter = express.Router();
 
@@ -18,5 +19,7 @@ publicRouter.get('/login', loginValidator, login);
 publicRouter.post('register', registerValidator, register);
 publicRouter.post('/refresh_token', refreshToken);
 publicRouter.get('/tags', getAllTags);
+
+publicRouter.get('/articles/:slug/comments', getArticleComments);
 
 export default publicRouter;
