@@ -287,7 +287,9 @@ export const isFavorited = async <T>(
 		FROM "article_management".favorite_articles 
 		WHERE article_id = $1 AND user_id = $2`;
     return await db
-        .one(queryString, [article.id, user.id], (c) => +c.count)
+        .oneOrNone(queryString, [article.id, user.id], (c) =>
+            c ? +c.count : 0,
+        )
         .then((count) => count !== 0);
 };
 

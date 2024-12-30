@@ -131,7 +131,7 @@ export const isFollowing = async <T>(
 		FROM "article_management".follows 
 		WHERE from_user_id = $1 AND to_user_id = $2`;
     return await db
-        .one(queryString, [a.id, b.id], (c) => +c.count)
+        .oneOrNone(queryString, [a.id, b.id], (c) => (c ? +c.count : 0))
         .then((count) => count !== 0);
 };
 
