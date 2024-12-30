@@ -369,7 +369,7 @@ export const updateCurrentUser = async (req: Request, res: Response) => {
             err instanceof pgpErrors.QueryResultError &&
             err.code === pgpErrors.queryResultErrorCode.noData
         ) {
-            res.status(404).json({ error: 'failed to update profile' });
+            res.status(404).json({ error: 'user not found' });
         } else if (err instanceof AuthenticationError) {
             res.status(500).json({ error: 'failed to generate token' });
         } else if (err instanceof Error) {
