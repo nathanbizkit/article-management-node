@@ -18,7 +18,7 @@ const schema = Joi.object({
 /**
  * Validates fields of a comment object
  * @param comment a {@link Comment} object
- * @returns either a {@link Joi.ValidationResult<User>} or a {@link Joi.ValidationError}
+ * @returns either a ValidationResult<Comment> or a {@link Joi.ValidationError}
  */
 export const validateComment = async (
     comment: Comment,

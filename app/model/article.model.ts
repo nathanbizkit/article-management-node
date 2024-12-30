@@ -11,7 +11,7 @@ import {
 
 const schema = Joi.object({
     title: Joi.string().min(5).max(100).required(),
-    description: Joi.string().min(5).max(100),
+    description: Joi.string().min(5).max(100).allow(''),
     body: Joi.string().required(),
     userID: Joi.number().required(),
     tags: Joi.array().items(Joi.string().min(3).max(50)),
@@ -20,7 +20,7 @@ const schema = Joi.object({
 /**
  * Validates fields of an article object
  * @param article a {@link Article} object
- * @returns either a {@link Joi.ValidationResult<User>} or a {@link Joi.ValidationError}
+ * @returns either a ValidationResult<Article> or a {@link Joi.ValidationError}
  */
 export const validateArticle = async (
     article: Article,

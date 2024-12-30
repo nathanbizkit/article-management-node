@@ -22,14 +22,14 @@ const schema = Joi.object({
         .required(),
     email: Joi.string().email().min(5).max(100).required(),
     name: Joi.string().min(5).max(100).required(),
-    bio: Joi.string().max(255),
-    image: Joi.string().max(255),
+    bio: Joi.string().max(255).allow(''),
+    image: Joi.string().uri().max(255).allow(''),
 });
 
 /**
  * Validates fields of a user object
  * @param user a {@link User} object
- * @returns either a {@link Joi.ValidationResult<User>} or a {@link Joi.ValidationError}
+ * @returns either a ValidationResult<User> or a {@link Joi.ValidationError}
  */
 export const validateUser = async (
     user: User,
@@ -45,7 +45,7 @@ export const overwriteUser = (a: User, b: User): User => ({
     ...a,
     username: b.username.trim() || a.username,
     email: b.email.trim() || a.email,
-    plainPassword: b.plainPassword.trim() || a.plainPassword,
+    plainPassword: b.plainPassword.trim() || '', // no hashing required if empty
     name: b.name.trim() || a.name,
     bio: b.bio,
     image: b.image,
