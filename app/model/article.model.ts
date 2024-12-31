@@ -35,8 +35,8 @@ export const validateArticle = async (
  */
 export const overwriteArticle = (a: Article, b: Article): Article => ({
     ...a,
-    title: b.title.trim() || a.title,
-    body: b.body.trim() || a.body,
+    title: b.title?.trim() || a.title,
+    body: b.body?.trim() || a.body,
     description: b.description,
 });
 

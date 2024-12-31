@@ -43,10 +43,10 @@ export const validateUser = async (
  */
 export const overwriteUser = (a: User, b: User): User => ({
     ...a,
-    username: b.username.trim() || a.username,
-    email: b.email.trim() || a.email,
-    plainPassword: b.plainPassword.trim() || '', // no hashing required if empty
-    name: b.name.trim() || a.name,
+    username: b.username?.trim() || a.username,
+    email: b.email?.trim() || a.email,
+    plainPassword: b.plainPassword?.trim() || '', // no hashing required if empty
+    name: b.name?.trim() || a.name,
     bio: b.bio,
     image: b.image,
 });

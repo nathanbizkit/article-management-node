@@ -44,10 +44,13 @@ const createTokens = async (uid: number): Promise<string[]> => {
     return [sessionToken, refreshToken];
 };
 
-export const loginValidator = checkSchema({
-    email: { isEmail: true, escape: true },
-    password: { notEmpty: true, escape: true },
-});
+export const loginValidator = checkSchema(
+    {
+        email: { isEmail: true, escape: true },
+        password: { notEmpty: true, escape: true },
+    },
+    ['body'],
+);
 
 /**
  * Logs a user in and sets session and refresh token in cookies
@@ -112,12 +115,15 @@ export const login = async (req: Request, res: Response) => {
     }
 };
 
-export const registerValidator = checkSchema({
-    username: { notEmpty: true, escape: true },
-    email: { isEmail: true, escape: true },
-    password: { notEmpty: true, escape: true },
-    name: { notEmpty: true, escape: true },
-});
+export const registerValidator = checkSchema(
+    {
+        username: { notEmpty: true, escape: true },
+        email: { isEmail: true, escape: true },
+        password: { notEmpty: true, escape: true },
+        name: { notEmpty: true, escape: true },
+    },
+    ['body'],
+);
 
 /**
  * Registers a new user and sets session and refresh token in cookies
@@ -293,14 +299,17 @@ export const getCurrentUser = async (req: Request, res: Response) => {
     }
 };
 
-export const updateCurrentUserValidator = checkSchema({
-    username: { optional: true, isString: true, escape: true },
-    email: { optional: true, isEmail: true, escape: true },
-    password: { optional: true, isString: true, escape: true },
-    name: { optional: true, isString: true, escape: true },
-    bio: { optional: true, isString: true, escape: true },
-    image: { optional: true, isURL: true, escape: true },
-});
+export const updateCurrentUserValidator = checkSchema(
+    {
+        username: { optional: true, isString: true, escape: true },
+        email: { optional: true, isEmail: true, escape: true },
+        password: { optional: true, isString: true, escape: true },
+        name: { optional: true, isString: true, escape: true },
+        bio: { optional: true, isString: true, escape: true },
+        image: { optional: true, isURL: true, escape: true },
+    },
+    ['body'],
+);
 
 /**
  * Updates a current user's profile and sets session and refresh token in cookies

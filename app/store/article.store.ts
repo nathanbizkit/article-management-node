@@ -298,13 +298,13 @@ export const isFavorited = async <T>(
  * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
  * @param article an {@link Article} object
  * @param user a {@link User} object
- * @returns an object that contains updated favorites count and timestamp
+ * @returns an array that contains updated favorites count and timestamp
  */
 export const addFavorite = async <T>(
     db: IDatabase<T> | ITask<T>,
     article: Article,
     user: User,
-): Promise<{ favoritesCount: number; updatedAt: Date }> =>
+): Promise<[number, Date]> =>
     await db.tx(async (t: ITask<T>) => {
         let queryString = `INSERT INTO "article_management".favorite_articles 
 			(article_id, user_id) VALUES ($1, $2)`;
@@ -314,10 +314,10 @@ export const addFavorite = async <T>(
 			SET favorites_count = favorites_count + $1, updated_at = DEFAULT 
 			WHERE id = $2 
 			RETURNING favorites_count, updated_at`;
-        return t.one(queryString, [1, article.id], (row) => ({
-            favoritesCount: row.favorites_count,
-            updatedAt: row.updated_at,
-        }));
+        return t.one(queryString, [1, article.id], (row) => [
+            row.favorites_count,
+            row.updated_at,
+        ]);
     });
 
 /**
@@ -325,13 +325,13 @@ export const addFavorite = async <T>(
  * @param db either {@link IDatabase<T>} or {@link ITask<T>} object
  * @param article an {@link Article} object
  * @param user a {@link User} object
- * @returns an object that contains updated favorites cound and timestmap
+ * @returns an array that contains updated favorites cound and timestmap
  */
 export const deleteFavorite = async <T>(
     db: IDatabase<T> | ITask<T>,
     article: Article,
     user: User,
-): Promise<{ favoritesCount: number; updatedAt: Date }> =>
+): Promise<[number, Date]> =>
     await db.tx(async (t: ITask<T>) => {
         let queryString = `DELETE FROM "article_management".favorite_articles 
 			WHERE article_id = $1 AND user_id = $2`;
@@ -341,8 +341,8 @@ export const deleteFavorite = async <T>(
 			SET favorites_count = GREATEST(0, favorites_count - $1), updated_at = DEFAULT 
 			WHERE id = $2 
 			RETURNING favorites_count, updated_at`;
-        return t.one(queryString, [1, article.id], (row) => ({
-            favoritesCount: row.favorites_count,
-            updatedAt: row.updated_at,
-        }));
+        return t.one(queryString, [1, article.id], (row) => [
+            row.favorites_count,
+            row.updated_at,
+        ]);
     });

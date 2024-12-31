@@ -21,9 +21,12 @@ import { checkSchema } from 'express-validator';
 import { ValidationError } from 'joi';
 import { errors as pgpErrors } from 'pg-promise';
 
-export const createArticleCommentValidator = checkSchema({
-    body: { notEmpty: true, isString: true, escape: true },
-});
+export const createArticleCommentValidator = checkSchema(
+    {
+        body: { notEmpty: true, isString: true, escape: true },
+    },
+    ['body'],
+);
 
 /**
  * Creates a comment

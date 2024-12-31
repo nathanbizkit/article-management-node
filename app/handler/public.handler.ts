@@ -10,6 +10,11 @@ import {
     registerValidator,
 } from './auth.handler';
 import { getArticleComments } from './comment.handler';
+import {
+    getAllArticles,
+    getAllArticlesValidator,
+    getArticle,
+} from './article.handler';
 
 const publicRouter = express.Router();
 
@@ -20,6 +25,8 @@ publicRouter.post('register', registerValidator, register);
 publicRouter.post('/refresh_token', refreshToken);
 publicRouter.get('/tags', getAllTags);
 
+publicRouter.get('/articles', getAllArticlesValidator, getAllArticles);
+publicRouter.get('/articles/:slug', getArticle);
 publicRouter.get('/articles/:slug/comments', getArticleComments);
 
 export default publicRouter;
