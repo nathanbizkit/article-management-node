@@ -18,8 +18,8 @@ import { getUserByID, isFollowing } from '@app/store/user.store';
 import { buildValidationMessage } from '@app/util/validator';
 import { Request, Response } from 'express';
 import { checkSchema } from 'express-validator';
-import { ValidationError } from 'joi';
-import { errors as pgpErrors } from 'pg-promise';
+import joi from 'joi';
+import pgPromise from 'pg-promise';
 
 export const createArticleCommentValidator = checkSchema(
     {
@@ -58,11 +58,11 @@ export const createArticleComment = async (req: Request, res: Response) => {
         const createdComment = await createComment(pgdb.db, comment);
         res.status(200).json(buildCommentResponse(createdComment));
     } catch (err) {
-        if (err instanceof ValidationError) {
+        if (err instanceof joi.ValidationError) {
             res.status(400).json({ error: buildValidationMessage(err) });
         } else if (
-            err instanceof pgpErrors.QueryResultError &&
-            err.code === pgpErrors.queryResultErrorCode.noData
+            err instanceof pgPromise.errors.QueryResultError &&
+            err.code === pgPromise.errors.queryResultErrorCode.noData
         ) {
             res.status(404).json({ error: 'data not found' });
         } else if (err instanceof Error) {
@@ -109,8 +109,8 @@ export const getArticleComments = async (req: Request, res: Response) => {
         res.status(200).json({ comments: commentResponses });
     } catch (err) {
         if (
-            err instanceof pgpErrors.QueryResultError &&
-            err.code === pgpErrors.queryResultErrorCode.noData
+            err instanceof pgPromise.errors.QueryResultError &&
+            err.code === pgPromise.errors.queryResultErrorCode.noData
         ) {
             res.status(404).json({ error: 'data not found' });
         } else if (err instanceof Error) {
@@ -158,8 +158,8 @@ export const deleteArticleComment = async (req: Request, res: Response) => {
         res.status(204);
     } catch (err) {
         if (
-            err instanceof pgpErrors.QueryResultError &&
-            err.code === pgpErrors.queryResultErrorCode.noData
+            err instanceof pgPromise.errors.QueryResultError &&
+            err.code === pgPromise.errors.queryResultErrorCode.noData
         ) {
             res.status(404).json({ error: 'data not found' });
         } else if (err instanceof Error) {

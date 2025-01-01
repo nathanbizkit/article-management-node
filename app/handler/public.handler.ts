@@ -8,7 +8,7 @@ import {
     refreshToken,
     register,
     registerValidator,
-} from './auth.handler';
+} from './user.handler';
 import { getArticleComments } from './comment.handler';
 import {
     getAllArticles,

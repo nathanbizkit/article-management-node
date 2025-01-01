@@ -1,6 +1,6 @@
 'use strict';
 
-import * as Joi from 'joi';
+import joi from 'joi';
 import { buildUserProfile } from './user.model';
 import {
     Article,
@@ -9,22 +9,22 @@ import {
     ArticleResponseOptions,
 } from './article.types';
 
-const schema = Joi.object({
-    title: Joi.string().min(5).max(100).required(),
-    description: Joi.string().min(5).max(100).allow(''),
-    body: Joi.string().required(),
-    userID: Joi.number().required(),
-    tags: Joi.array().items(Joi.string().min(3).max(50)),
+const schema = joi.object({
+    title: joi.string().min(5).max(100).required(),
+    description: joi.string().min(5).max(100).allow(''),
+    body: joi.string().required(),
+    userID: joi.number().required(),
+    tags: joi.array().items(joi.string().min(3).max(50)),
 });
 
 /**
  * Validates fields of an article object
  * @param article a {@link Article} object
- * @returns either a ValidationResult<Article> or a {@link Joi.ValidationError}
+ * @returns either a ValidationResult<Article> or a {@link joi.ValidationError}
  */
 export const validateArticle = async (
     article: Article,
-): Promise<Joi.ValidationResult<Article>> =>
+): Promise<joi.ValidationResult<Article>> =>
     await schema.validateAsync(article);
 
 /**

@@ -14,6 +14,7 @@ import secure from '@app/middleware/secure.middleware';
 import publicRouter from '@app/handler/public.handler';
 import privateRouter from '@app/handler/private.handler';
 import PostgresDB from '@app/db/postgres.db';
+import { resolveHome } from '@app/util/filepath';
 
 const app = express();
 
@@ -52,8 +53,8 @@ httpServer.listen(appPort, () => {
 let httpsServer: HTTPSServer | undefined;
 if (TLS_KEY_FILE !== '' && TLS_CERT_FILE !== '') {
     const options = {
-        key: fs.readFileSync(TLS_KEY_FILE),
-        cert: fs.readFileSync(TLS_CERT_FILE),
+        key: fs.readFileSync(resolveHome(TLS_KEY_FILE)),
+        cert: fs.readFileSync(resolveHome(TLS_CERT_FILE)),
     };
     httpsServer = new https.Server(options, app);
 

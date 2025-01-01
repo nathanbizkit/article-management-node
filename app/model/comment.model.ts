@@ -1,6 +1,6 @@
 'use strict';
 
-import * as Joi from 'joi';
+import joi from 'joi';
 import { buildUserProfile } from './user.model';
 import {
     Comment,
@@ -9,20 +9,20 @@ import {
     CommentResponseOptions,
 } from './comment.types';
 
-const schema = Joi.object({
-    body: Joi.string().required(),
-    userID: Joi.number().required(),
-    articleID: Joi.number().required(),
+const schema = joi.object({
+    body: joi.string().required(),
+    userID: joi.number().required(),
+    articleID: joi.number().required(),
 });
 
 /**
  * Validates fields of a comment object
  * @param comment a {@link Comment} object
- * @returns either a ValidationResult<Comment> or a {@link Joi.ValidationError}
+ * @returns either a ValidationResult<Comment> or a {@link joi.ValidationError}
  */
 export const validateComment = async (
     comment: Comment,
-): Promise<Joi.ValidationResult<Comment>> =>
+): Promise<joi.ValidationResult<Comment>> =>
     await schema.validateAsync(comment);
 
 /**

@@ -6,7 +6,7 @@ import {
     getCurrentUser,
     updateCurrentUser,
     updateCurrentUserValidator,
-} from './auth.handler';
+} from './user.handler';
 import { followUser, showProfile, unfollowUser } from './profile.handler';
 import {
     createArticleComment,

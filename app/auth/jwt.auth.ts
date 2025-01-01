@@ -1,6 +1,6 @@
 'use strict';
 
-import Jwt, { JwtPayload, Secret, SignOptions } from 'jsonwebtoken';
+import jwt, { JwtPayload, Secret, SignOptions } from 'jsonwebtoken';
 import { AuthenticationError } from './jwt.types';
 
 export const sessionTTL = 259200; // 3 days (seconds)
@@ -19,7 +19,7 @@ export const generateToken = async (
     options: SignOptions = {},
 ): Promise<string> =>
     new Promise((resolve, reject) =>
-        Jwt.sign(
+        jwt.sign(
             { uid },
             key,
             { ...options, algorithm: 'HS512' },
@@ -40,7 +40,7 @@ export const generateToken = async (
  */
 export const parseToken = async (token: string, key: Secret): Promise<number> =>
     new Promise((resolve, reject) =>
-        Jwt.verify(token, key, (err, decoded) =>
+        jwt.verify(token, key, (err, decoded) =>
             err
                 ? reject(new AuthenticationError(err.message))
                 : decoded

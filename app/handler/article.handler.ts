@@ -29,8 +29,8 @@ import {
 import { buildValidationMessage } from '@app/util/validator';
 import { Request, Response } from 'express';
 import { checkSchema, validationResult } from 'express-validator';
-import { ValidationError } from 'joi';
-import { errors as pgpErrors } from 'pg-promise';
+import joi from 'joi';
+import pgPromise from 'pg-promise';
 
 export const createNewArticleValidator = checkSchema(
     {
@@ -85,11 +85,11 @@ export const createNewArticle = async (req: Request, res: Response) => {
             }),
         );
     } catch (err) {
-        if (err instanceof ValidationError) {
+        if (err instanceof joi.ValidationError) {
             res.status(400).json({ error: buildValidationMessage(err) });
         } else if (
-            err instanceof pgpErrors.QueryResultError &&
-            err.code === pgpErrors.queryResultErrorCode.noData
+            err instanceof pgPromise.errors.QueryResultError &&
+            err.code === pgPromise.errors.queryResultErrorCode.noData
         ) {
             res.status(500).json({ error: 'failed to create an article' });
         } else if (err instanceof Error) {
@@ -137,8 +137,8 @@ export const getArticle = async (req: Request, res: Response) => {
         );
     } catch (err) {
         if (
-            err instanceof pgpErrors.QueryResultError &&
-            err.code === pgpErrors.queryResultErrorCode.noData
+            err instanceof pgPromise.errors.QueryResultError &&
+            err.code === pgPromise.errors.queryResultErrorCode.noData
         ) {
             res.status(500).json({ error: 'data not found' });
         } else if (err instanceof Error) {
@@ -226,8 +226,8 @@ export const getAllArticles = async (req: Request, res: Response) => {
         });
     } catch (err) {
         if (
-            err instanceof pgpErrors.QueryResultError &&
-            err.code === pgpErrors.queryResultErrorCode.noData
+            err instanceof pgPromise.errors.QueryResultError &&
+            err.code === pgPromise.errors.queryResultErrorCode.noData
         ) {
             res.status(500).json({ error: 'data not found' });
         } else if (err instanceof Error) {
@@ -297,8 +297,8 @@ export const getAllFeedArticles = async (req: Request, res: Response) => {
         });
     } catch (err) {
         if (
-            err instanceof pgpErrors.QueryResultError &&
-            err.code === pgpErrors.queryResultErrorCode.noData
+            err instanceof pgPromise.errors.QueryResultError &&
+            err.code === pgPromise.errors.queryResultErrorCode.noData
         ) {
             res.status(500).json({ error: 'data not found' });
         } else if (err instanceof Error) {
@@ -372,11 +372,11 @@ export const updateArticleBySlug = async (req: Request, res: Response) => {
             }),
         );
     } catch (err) {
-        if (err instanceof ValidationError) {
+        if (err instanceof joi.ValidationError) {
             res.status(400).json({ error: buildValidationMessage(err) });
         } else if (
-            err instanceof pgpErrors.QueryResultError &&
-            err.code === pgpErrors.queryResultErrorCode.noData
+            err instanceof pgPromise.errors.QueryResultError &&
+            err.code === pgPromise.errors.queryResultErrorCode.noData
         ) {
             res.status(500).json({ error: 'data not found' });
         } else if (err instanceof Error) {
@@ -416,8 +416,8 @@ export const deleteArticleBySlug = async (req: Request, res: Response) => {
         res.status(204);
     } catch (err) {
         if (
-            err instanceof pgpErrors.QueryResultError &&
-            err.code === pgpErrors.queryResultErrorCode.noData
+            err instanceof pgPromise.errors.QueryResultError &&
+            err.code === pgPromise.errors.queryResultErrorCode.noData
         ) {
             res.status(500).json({ error: 'data not found' });
         } else if (err instanceof Error) {
@@ -483,8 +483,8 @@ export const favoriteArticle = async (req: Request, res: Response) => {
         );
     } catch (err) {
         if (
-            err instanceof pgpErrors.QueryResultError &&
-            err.code === pgpErrors.queryResultErrorCode.noData
+            err instanceof pgPromise.errors.QueryResultError &&
+            err.code === pgPromise.errors.queryResultErrorCode.noData
         ) {
             res.status(500).json({ error: 'data not found' });
         } else if (err instanceof Error) {
@@ -550,8 +550,8 @@ export const unfavoriteArticle = async (req: Request, res: Response) => {
         );
     } catch (err) {
         if (
-            err instanceof pgpErrors.QueryResultError &&
-            err.code === pgpErrors.queryResultErrorCode.noData
+            err instanceof pgPromise.errors.QueryResultError &&
+            err.code === pgPromise.errors.queryResultErrorCode.noData
         ) {
             res.status(500).json({ error: 'data not found' });
         } else if (err instanceof Error) {

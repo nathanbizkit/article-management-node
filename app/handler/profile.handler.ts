@@ -10,7 +10,7 @@ import {
     unfollow,
 } from '@app/store/user.store';
 import { Request, Response } from 'express';
-import { errors as pgpErrors } from 'pg-promise';
+import pgPromise from 'pg-promise';
 
 /**
  * Gets a user's profile
@@ -30,8 +30,8 @@ export const showProfile = async (req: Request, res: Response) => {
         res.status(200).json(buildUserProfile(user, { following }));
     } catch (err) {
         if (
-            err instanceof pgpErrors.QueryResultError &&
-            err.code === pgpErrors.queryResultErrorCode.noData
+            err instanceof pgPromise.errors.QueryResultError &&
+            err.code === pgPromise.errors.queryResultErrorCode.noData
         ) {
             res.status(404).json({ error: 'data not found' });
         } else if (err instanceof Error) {
@@ -78,8 +78,8 @@ export const followUser = async (req: Request, res: Response) => {
         res.status(200).json(buildUserProfile(user, { following: true }));
     } catch (err) {
         if (
-            err instanceof pgpErrors.QueryResultError &&
-            err.code === pgpErrors.queryResultErrorCode.noData
+            err instanceof pgPromise.errors.QueryResultError &&
+            err.code === pgPromise.errors.queryResultErrorCode.noData
         ) {
             res.status(404).json({ error: 'data not found' });
         } else if (err instanceof Error) {
@@ -126,8 +126,8 @@ export const unfollowUser = async (req: Request, res: Response) => {
         res.status(200).json(buildUserProfile(user, { following: false }));
     } catch (err) {
         if (
-            err instanceof pgpErrors.QueryResultError &&
-            err.code === pgpErrors.queryResultErrorCode.noData
+            err instanceof pgPromise.errors.QueryResultError &&
+            err.code === pgPromise.errors.queryResultErrorCode.noData
         ) {
             res.status(404).json({ error: 'data not found' });
         } else if (err instanceof Error) {

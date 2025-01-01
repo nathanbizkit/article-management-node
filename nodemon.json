@@ -1,0 +1,6 @@
+{
+    "watch": ["app"],
+    "ext": "ts,js,json",
+    "ignore": ["node_modules", "app/**/*.spec.ts", "coverage", "dist"],
+    "exec": "tsx --env-file=.env"
+}

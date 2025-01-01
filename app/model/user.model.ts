@@ -1,7 +1,7 @@
 'use strict';
 
-import * as Joi from 'joi';
-import * as Bcrypt from 'bcrypt';
+import joi from 'joi';
+import bcrypt from 'bcrypt';
 import {
     User,
     UserFromDB,
@@ -9,31 +9,33 @@ import {
     UserProfileOptions,
 } from './user.types';
 
-const schema = Joi.object({
-    username: Joi.string()
+const schema = joi.object({
+    username: joi
+        .string()
         .pattern(/^[a-zA-Z0-9][a-zA-Z0-9_.]+[a-zA-Z0-9]$/)
         .min(5)
         .max(100)
         .required(),
-    plainPassword: Joi.string()
+    plainPassword: joi
+        .string()
         .pattern(/^(?=.*\d)(?=.*[!@#$%^&*_.])(?=.*[a-z])(?=.*[A-Z]).+$/)
         .min(7)
         .max(50)
         .required(),
-    email: Joi.string().email().min(5).max(100).required(),
-    name: Joi.string().min(5).max(100).required(),
-    bio: Joi.string().max(255).allow(''),
-    image: Joi.string().uri().max(255).allow(''),
+    email: joi.string().email().min(5).max(100).required(),
+    name: joi.string().min(5).max(100).required(),
+    bio: joi.string().max(255).allow(''),
+    image: joi.string().uri().max(255).allow(''),
 });
 
 /**
  * Validates fields of a user object
  * @param user a {@link User} object
- * @returns either a ValidationResult<User> or a {@link Joi.ValidationError}
+ * @returns either a ValidationResult<User> or a {@link joi.ValidationError}
  */
 export const validateUser = async (
     user: User,
-): Promise<Joi.ValidationResult<User>> => await schema.validateAsync(user);
+): Promise<joi.ValidationResult<User>> => await schema.validateAsync(user);
 
 /**
  * Overwrites each fields of `a` with `b` if it's not falsy value
@@ -59,7 +61,7 @@ export const overwriteUser = (a: User, b: User): User => ({
 export const hashUserPassword = async (plain: string): Promise<string> =>
     !plain || plain === ''
         ? await Promise.reject(new Error('password is empty'))
-        : await Bcrypt.hash(plain, 10);
+        : await bcrypt.hash(plain, 10);
 
 /**
  * Checks whether a user's password is matched with a hashed one
@@ -70,7 +72,7 @@ export const hashUserPassword = async (plain: string): Promise<string> =>
 export const checkPassword = async (
     hashed: string,
     plain: string,
-): Promise<boolean> => await Bcrypt.compare(plain, hashed);
+): Promise<boolean> => await bcrypt.compare(plain, hashed);
 
 /**
  * Builds a user's profile object from a user object
