@@ -10,4 +10,4 @@ restart:
 	docker-compose restart
 
 e2etest:
-	bash test/e2e/run-api-tests.sh
+	bash app/test/e2e/run-api-tests.sh
