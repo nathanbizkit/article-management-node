@@ -1,13 +1,19 @@
 'use strict';
 
-import { mapArticleFromDB } from '@app/model/article.model';
-import { getTagsByArticleID, getTagsByArticleIDs } from './tag.store';
 import { IDatabase, ITask } from 'pg-promise';
-import { getUserByID } from './user.store';
-import { mapTagFromDB } from '@app/model/tag.model';
-import { Article } from '@app/model/article.types';
-import { User } from '@app/model/user.types';
-import { GetArticlesOptions, GetFeedArticlesOptions } from './article.types';
+import { mapArticleFromDB } from '#app/model/article.model.js';
+import {
+    getTagsByArticleID,
+    getTagsByArticleIDs,
+} from '#app/store/tag.store.js';
+import { getUserByID } from '#app/store/user.store.js';
+import { mapTagFromDB } from '#app/model/tag.model.js';
+import { Article } from '#app/model/article.types.js';
+import { User } from '#app/model/user.types.js';
+import {
+    GetArticlesOptions,
+    GetFeedArticlesOptions,
+} from '#app/store/article.types.js';
 
 /**
  * Gets an article by an id

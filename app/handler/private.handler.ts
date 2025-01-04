@@ -1,18 +1,22 @@
 'use strict';
 
 import express from 'express';
-import restricted from '@app/middleware/restricted.middleware';
+import restricted from '#app/middleware/restricted.middleware.js';
 import {
     getCurrentUser,
     updateCurrentUser,
     updateCurrentUserValidator,
-} from './user.handler';
-import { followUser, showProfile, unfollowUser } from './profile.handler';
+} from '#app/handler/user.handler.js';
+import {
+    followUser,
+    showProfile,
+    unfollowUser,
+} from '#app/handler/profile.handler.js';
 import {
     createArticleComment,
     createArticleCommentValidator,
     deleteArticleComment,
-} from './comment.handler';
+} from '#app/handler/comment.handler.js';
 import {
     createNewArticle,
     createNewArticleValidator,
@@ -23,7 +27,7 @@ import {
     unfavoriteArticle,
     updateArticleBySlug,
     updateArticleBySlugValidator,
-} from './article.handler';
+} from '#app/handler/article.handler.js';
 
 const privateRouter = express.Router();
 privateRouter.use(restricted);

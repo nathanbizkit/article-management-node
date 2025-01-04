@@ -1,6 +1,10 @@
 'use strict';
 
-import { User, UserProfile, UserProfileOptions } from './user.types';
+import {
+    User,
+    UserProfile,
+    UserProfileOptions,
+} from '#app/model/user.types.js';
 
 export type Comment = {
     id: number;

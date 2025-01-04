@@ -1,20 +1,20 @@
 'use strict';
 
 import express from 'express';
-import { getAllTags } from './tag.handler';
+import { getAllTags } from '#app/handler/tag.handler.js';
 import {
     login,
     loginValidator,
     refreshToken,
     register,
     registerValidator,
-} from './user.handler';
-import { getArticleComments } from './comment.handler';
+} from '#app/handler/user.handler.js';
+import { getArticleComments } from '#app/handler/comment.handler.js';
 import {
     getAllArticles,
     getAllArticlesValidator,
     getArticle,
-} from './article.handler';
+} from '#app/handler/article.handler.js';
 
 const publicRouter = express.Router();
 

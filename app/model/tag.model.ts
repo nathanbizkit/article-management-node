@@ -1,6 +1,6 @@
 'use strict';
 
-import { Tag, TagFromDB } from './tag.types';
+import { Tag, TagFromDB } from '#app/model/tag.types.js';
 
 /**
  * Maps a database record into a tag object

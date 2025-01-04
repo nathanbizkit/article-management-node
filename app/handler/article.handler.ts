@@ -1,14 +1,18 @@
 'use strict';
 
-import PostgresDB from '@app/db/postgres.db';
+import { Request, Response } from 'express';
+import { checkSchema, validationResult } from 'express-validator';
+import joi from 'joi';
+import pgPromise from 'pg-promise';
+import PostgresDB from '#app/db/postgres.db.js';
 import {
     buildArticleResponse,
     overwriteArticle,
     validateArticle,
-} from '@app/model/article.model';
-import { Article } from '@app/model/article.types';
-import { Tag } from '@app/model/tag.types';
-import { User } from '@app/model/user.types';
+} from '#app/model/article.model.js';
+import { Article } from '#app/model/article.types.js';
+import { Tag } from '#app/model/tag.types.js';
+import { User } from '#app/model/user.types.js';
 import {
     addFavorite,
     createArticle,
@@ -19,18 +23,14 @@ import {
     getFeedArticles,
     isFavorited,
     updateArticle,
-} from '@app/store/article.store';
+} from '#app/store/article.store.js';
 import {
     getFollowingUserIDs,
     getUserByID,
     getUserByUsername,
     isFollowing,
-} from '@app/store/user.store';
-import { buildValidationMessage } from '@app/util/validator';
-import { Request, Response } from 'express';
-import { checkSchema, validationResult } from 'express-validator';
-import joi from 'joi';
-import pgPromise from 'pg-promise';
+} from '#app/store/user.store.js';
+import { buildValidationMessage } from '#app/util/validator.js';
 
 export const createNewArticleValidator = checkSchema(
     {

@@ -1,9 +1,9 @@
 'use strict';
 
-import { mapCommentFromDB } from '@app/model/comment.model';
 import { IDatabase, ITask } from 'pg-promise';
-import { getUserByID } from './user.store';
-import { Comment } from '@app/model/comment.types';
+import { mapCommentFromDB } from '#app/model/comment.model.js';
+import { getUserByID } from '#app/store/user.store.js';
+import { Comment } from '#app/model/comment.types.js';
 
 /**
  * Gets a comment by an id

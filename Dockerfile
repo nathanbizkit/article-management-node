@@ -3,21 +3,25 @@ FROM node:22-alpine AS builder
 
 WORKDIR /builder
 
-ADD package*.json /builder
-RUN npm install
+COPY package*.json ./
+RUN npm ci
 
-ADD . /builder
+COPY . /builder/
 RUN npm run build
 
 # final stage
 FROM node:22-alpine
 
-ADD package*.json .
-RUN npm ci --only=production
+WORKDIR /app
 
-COPY --from=builder /builder/dist /dist
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+COPY --from=builder /builder/dist .
+
+RUN ls -la
 
 EXPOSE 8000
 EXPOSE 8443
 
-CMD [ "node", "/dist/app.js" ]
+CMD [ "npm", "start" ]

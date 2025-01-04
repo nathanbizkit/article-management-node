@@ -1,25 +1,25 @@
 'use strict';
 
-import PostgresDB from '@app/db/postgres.db';
+import { Request, Response } from 'express';
+import { checkSchema } from 'express-validator';
+import joi from 'joi';
+import pgPromise from 'pg-promise';
+import PostgresDB from '#app/db/postgres.db.js';
 import {
     buildCommentResponse,
     validateComment,
-} from '@app/model/comment.model';
-import { Comment } from '@app/model/comment.types';
-import { User } from '@app/model/user.types';
-import { getArticleByID } from '@app/store/article.store';
+} from '#app/model/comment.model.js';
+import { Comment } from '#app/model/comment.types.js';
+import { User } from '#app/model/user.types.js';
+import { getArticleByID } from '#app/store/article.store.js';
 import {
     createComment,
     deleteComment,
     getCommentByID,
     getCommentsByArticleID,
-} from '@app/store/comment.store';
-import { getUserByID, isFollowing } from '@app/store/user.store';
-import { buildValidationMessage } from '@app/util/validator';
-import { Request, Response } from 'express';
-import { checkSchema } from 'express-validator';
-import joi from 'joi';
-import pgPromise from 'pg-promise';
+} from '#app/store/comment.store.js';
+import { getUserByID, isFollowing } from '#app/store/user.store.js';
+import { buildValidationMessage } from '#app/util/validator.js';
 
 export const createArticleCommentValidator = checkSchema(
     {

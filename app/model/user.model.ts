@@ -7,7 +7,7 @@ import {
     UserFromDB,
     UserProfile,
     UserProfileOptions,
-} from './user.types';
+} from '#app/model/user.types.js';
 
 const schema = joi.object({
     username: joi

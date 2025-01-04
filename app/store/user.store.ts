@@ -1,8 +1,8 @@
 'use strict';
 
-import { mapUserFromDB } from '@app/model/user.model';
-import { User } from '@app/model/user.types';
 import { IDatabase, ITask } from 'pg-promise';
+import { mapUserFromDB } from '#app/model/user.model.js';
+import { User } from '#app/model/user.types.js';
 
 /**
  * Gets a user by an id

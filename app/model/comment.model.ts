@@ -1,13 +1,13 @@
 'use strict';
 
 import joi from 'joi';
-import { buildUserProfile } from './user.model';
+import { buildUserProfile } from '#app/model/user.model.js';
 import {
     Comment,
     CommentFromDB,
     CommentResponse,
     CommentResponseOptions,
-} from './comment.types';
+} from '#app/model/comment.types.js';
 
 const schema = joi.object({
     body: joi.string().required(),

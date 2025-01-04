@@ -1,13 +1,13 @@
 'use strict';
 
 import joi from 'joi';
-import { buildUserProfile } from './user.model';
+import { buildUserProfile } from '#app/model/user.model.js';
 import {
     Article,
     ArticleFromDB,
     ArticleResponse,
     ArticleResponseOptions,
-} from './article.types';
+} from '#app/model/article.types.js';
 
 const schema = joi.object({
     title: joi.string().min(5).max(100).required(),

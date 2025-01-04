@@ -1,8 +1,8 @@
 'use strict';
 
-import PostgresDB from '@app/db/postgres.db';
-import { getTags } from '@app/store/tag.store';
 import { Request, Response } from 'express';
+import PostgresDB from '#app/db/postgres.db.js';
+import { getTags } from '#app/store/tag.store.js';
 
 /**
  * Gets all tags

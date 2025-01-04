@@ -1,15 +1,15 @@
 'use strict';
 
-import * as Joi from 'joi';
+import joi from 'joi';
 
 /**
  * Merges validation error messages
- * @param err {@link Joi.ValidationError} from `joi`
+ * @param err {@link joi.ValidationError} from `joi`
  * @param separator defaults to `, `
  * @returns a merged error message
  */
 export const buildValidationMessage = (
-    err: Joi.ValidationError,
+    err: joi.ValidationError,
     separator = ', ',
 ): string => {
     if (!err) return '';

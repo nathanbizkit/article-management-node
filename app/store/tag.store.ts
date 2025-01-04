@@ -1,8 +1,8 @@
 'use strict';
 
-import { mapTagFromDB } from '@app/model/tag.model';
-import { Tag } from '@app/model/tag.types';
 import { IDatabase, ITask } from 'pg-promise';
+import { mapTagFromDB } from '#app/model/tag.model.js';
+import { Tag } from '#app/model/tag.types.js';
 
 /**
  * Gets all tags

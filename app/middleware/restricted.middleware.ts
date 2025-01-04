@@ -1,7 +1,7 @@
 'use strict';
 
-import { parseToken } from '@app/auth/jwt.auth';
 import { NextFunction, Request, Response } from 'express';
+import { parseToken } from '#app/auth/jwt.auth.js';
 
 /**
  * Attaches a middleware that guards against unauthorized incoming request

@@ -1,7 +1,11 @@
 'use strict';
 
-import { Tag } from './tag.types';
-import { User, UserProfile, UserProfileOptions } from './user.types';
+import { Tag } from '#app/model/tag.types.js';
+import {
+    User,
+    UserProfile,
+    UserProfileOptions,
+} from '#app/model/user.types.js';
 
 export type Article = {
     id: number;

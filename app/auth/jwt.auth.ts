@@ -1,7 +1,7 @@
 'use strict';
 
 import jwt, { JwtPayload, Secret, SignOptions } from 'jsonwebtoken';
-import { AuthenticationError } from './jwt.types';
+import { AuthenticationError } from './jwt.types.js';
 
 export const sessionTTL = 259200; // 3 days (seconds)
 export const refreshTTL = 604800; // 7 days (seconds)

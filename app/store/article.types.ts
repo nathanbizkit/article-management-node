@@ -1,6 +1,6 @@
 'use strict';
 
-import { User } from '@app/model/user.types';
+import { User } from '#app/model/user.types.js';
 
 export interface PaginationOptions {
     limit?: number;

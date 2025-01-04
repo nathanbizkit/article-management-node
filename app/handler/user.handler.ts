@@ -1,32 +1,32 @@
 'use strict';
 
+import { Request, Response } from 'express';
+import { checkSchema, validationResult } from 'express-validator';
+import joi from 'joi';
+import pgPromise from 'pg-promise';
 import {
     generateToken,
     parseToken,
     refreshTTL,
     sessionTTL,
-} from '@app/auth/jwt.auth';
-import { AuthenticationError } from '@app/auth/jwt.types';
-import PostgresDB from '@app/db/postgres.db';
+} from '#app/auth/jwt.auth.js';
+import { AuthenticationError } from '#app/auth/jwt.types.js';
+import PostgresDB from '#app/db/postgres.db.js';
 import {
     buildUserProfile,
     checkPassword,
     hashUserPassword,
     overwriteUser,
     validateUser,
-} from '@app/model/user.model';
-import { User } from '@app/model/user.types';
+} from '#app/model/user.model.js';
+import { User } from '#app/model/user.types.js';
 import {
     createUser,
     getUserByEmail,
     getUserByID,
     updateUser,
-} from '@app/store/user.store';
-import { buildValidationMessage } from '@app/util/validator';
-import { Request, Response } from 'express';
-import { checkSchema, validationResult } from 'express-validator';
-import joi from 'joi';
-import pgPromise from 'pg-promise';
+} from '#app/store/user.store.js';
+import { buildValidationMessage } from '#app/util/validator.js';
 
 /**
  * Creates a session token and refresh token with a user's id in the payload

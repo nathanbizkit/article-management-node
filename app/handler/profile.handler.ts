@@ -1,16 +1,16 @@
 'use strict';
 
-import PostgresDB from '@app/db/postgres.db';
-import { buildUserProfile } from '@app/model/user.model';
+import { Request, Response } from 'express';
+import pgPromise from 'pg-promise';
+import PostgresDB from '#app/db/postgres.db.js';
+import { buildUserProfile } from '#app/model/user.model.js';
 import {
     follow,
     getUserByID,
     getUserByUsername,
     isFollowing,
     unfollow,
-} from '@app/store/user.store';
-import { Request, Response } from 'express';
-import pgPromise from 'pg-promise';
+} from '#app/store/user.store.js';
 
 /**
  * Gets a user's profile
