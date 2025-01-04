@@ -24,4 +24,4 @@ RUN ls -la
 EXPOSE 8000
 EXPOSE 8443
 
-CMD [ "npm", "start" ]
+CMD [ "node", "app.js" ]

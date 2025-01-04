@@ -5,7 +5,6 @@
     "main": "app.ts",
     "type": "module",
     "scripts": {
-        "start": "node dist/app.js",
         "dev": "nodemon app.ts",
         "clean": "rimraf dist",
         "build": "tsc",
@@ -62,6 +61,6 @@
         "typescript-eslint": "^8.17.0"
     },
     "imports": {
-        "#app/*": "./dist/app/*"
+        "#app/*": "./app/*"
     }
 }
