@@ -27,6 +27,7 @@ app.use(secure);
 app.use(compression());
 app.use(cookieParser());
 app.use(morgan('combined'));
+app.use(express.json());
 
 // routers
 const apiRouter = express.Router();

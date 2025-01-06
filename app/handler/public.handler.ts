@@ -18,15 +18,23 @@ import {
 
 const publicRouter = express.Router();
 
-publicRouter.use(express.json());
-
+/**
+ * Auth
+ */
 publicRouter.get('/login', loginValidator, login);
 publicRouter.post('register', registerValidator, register);
 publicRouter.post('/refresh_token', refreshToken);
-publicRouter.get('/tags', getAllTags);
 
+/**
+ * Public Articles
+ */
 publicRouter.get('/articles', getAllArticlesValidator, getAllArticles);
 publicRouter.get('/articles/:slug', getArticle);
 publicRouter.get('/articles/:slug/comments', getArticleComments);
+
+/**
+ * Tags
+ */
+publicRouter.get('/tags', getAllTags);
 
 export default publicRouter;

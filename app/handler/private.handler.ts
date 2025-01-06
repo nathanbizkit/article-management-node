@@ -1,7 +1,7 @@
 'use strict';
 
 import express from 'express';
-import restricted from '#app/middleware/restricted.middleware.js';
+import requireAuthentication from '#app/middleware/requireAuthentication.middleware.js';
 import {
     getCurrentUser,
     updateCurrentUser,
@@ -30,36 +30,87 @@ import {
 } from '#app/handler/article.handler.js';
 
 const privateRouter = express.Router();
-privateRouter.use(restricted);
 
-privateRouter.get('/me', getCurrentUser);
-privateRouter.put('/me', updateCurrentUserValidator, updateCurrentUser);
+/**
+ * Current user profile
+ */
+privateRouter.get('/me', [requireAuthentication], getCurrentUser);
+privateRouter.put(
+    '/me',
+    [requireAuthentication],
+    updateCurrentUserValidator,
+    updateCurrentUser,
+);
 
-privateRouter.get('/profiles/:username', showProfile);
-privateRouter.post('/profiles/:username/follow', followUser);
-privateRouter.delete('/profiles/:username/follow', unfollowUser);
+/**
+ * Profiles
+ */
+privateRouter.get('/profiles/:username', [requireAuthentication], showProfile);
+privateRouter.post(
+    '/profiles/:username/follow',
+    [requireAuthentication],
+    followUser,
+);
+privateRouter.delete(
+    '/profiles/:username/follow',
+    [requireAuthentication],
+    unfollowUser,
+);
 
+/**
+ * Personal Articles
+ */
 privateRouter.get(
     '/articles/feed',
+    [requireAuthentication],
     getAllFeedArticlesValidator,
     getAllFeedArticles,
 );
-privateRouter.post('/articles', createNewArticleValidator, createNewArticle);
+privateRouter.post(
+    '/articles',
+    [requireAuthentication],
+    createNewArticleValidator,
+    createNewArticle,
+);
 privateRouter.put(
     '/articles/:slug',
+    [requireAuthentication],
     updateArticleBySlugValidator,
     updateArticleBySlug,
 );
-privateRouter.delete('/articles/:slug', deleteArticleBySlug);
+privateRouter.delete(
+    '/articles/:slug',
+    [requireAuthentication],
+    deleteArticleBySlug,
+);
 
+/**
+ * Comments
+ */
 privateRouter.post(
     '/articles/:slug/comments',
+    [requireAuthentication],
     createArticleCommentValidator,
     createArticleComment,
 );
-privateRouter.delete('/articles/:slug/comments/:id', deleteArticleComment);
+privateRouter.delete(
+    '/articles/:slug/comments/:id',
+    [requireAuthentication],
+    deleteArticleComment,
+);
 
-privateRouter.post('/articles/:slug/favorite', favoriteArticle);
-privateRouter.delete('/articles/:slug/favorite', unfavoriteArticle);
+/**
+ * Favorites
+ */
+privateRouter.post(
+    '/articles/:slug/favorite',
+    [requireAuthentication],
+    favoriteArticle,
+);
+privateRouter.delete(
+    '/articles/:slug/favorite',
+    [requireAuthentication],
+    unfavoriteArticle,
+);
 
 export default privateRouter;

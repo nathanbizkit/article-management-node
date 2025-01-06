@@ -10,12 +10,16 @@ import { parseToken } from '#app/auth/jwt.auth.js';
  * @param next a {@link NextFunction} function from `express`
  * @returns
  */
-const restricted = async (req: Request, res: Response, next: NextFunction) => {
+const requireAuthentication = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) => {
     const { AUTH_JWT_SECRET_KEY: secretKey = '' } = process.env;
 
-    let uid: number;
+    let uid = 0;
     try {
-        uid = (await parseToken(req.cookies.session, secretKey)) ?? 0;
+        uid = await parseToken(req.cookies.session, secretKey);
     } catch {
         res.status(401).json({ error: 'unauthorized' });
         return;
@@ -25,4 +29,4 @@ const restricted = async (req: Request, res: Response, next: NextFunction) => {
     next();
 };
 
-export default restricted;
+export default requireAuthentication;
