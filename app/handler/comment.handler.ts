@@ -23,7 +23,7 @@ import { buildValidationMessage } from '#app/util/validator.js';
 
 export const createArticleCommentValidator = checkSchema(
     {
-        body: { notEmpty: true, isString: true, escape: true },
+        body: { notEmpty: true, isString: true },
     },
     ['body'],
 );
@@ -155,7 +155,7 @@ export const deleteArticleComment = async (req: Request, res: Response) => {
 
         await deleteComment(pgdb.db, comment);
 
-        res.status(204);
+        res.sendStatus(204);
     } catch (err) {
         if (
             err instanceof pgPromise.errors.QueryResultError &&

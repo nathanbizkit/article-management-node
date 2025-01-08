@@ -34,9 +34,9 @@ import { buildValidationMessage } from '#app/util/validator.js';
 
 export const createNewArticleValidator = checkSchema(
     {
-        title: { notEmpty: true, isString: true, escape: true },
-        description: { optional: true, isString: true, escape: true },
-        body: { notEmpty: true, isString: true, escape: true },
+        title: { notEmpty: true, isString: true },
+        description: { isString: true, optional: true },
+        body: { notEmpty: true, isString: true },
         tags: { isArray: { options: { min: 0 } } },
         'tags.*': { isString: true },
     },
@@ -156,11 +156,11 @@ export const getArticle = async (req: Request, res: Response) => {
 
 export const getAllArticlesValidator = checkSchema(
     {
-        tag: { optional: true, isString: true, escape: true },
-        username: { optional: true, isString: true, escape: true },
-        favorited: { optional: true, isString: true, escape: true },
-        limit: { optional: true, isNumeric: true },
-        offset: { optional: true, isNumeric: true },
+        tag: { isString: true, optional: true },
+        username: { isString: true, optional: true },
+        favorited: { isString: true, optional: true },
+        limit: { isNumeric: true, optional: true },
+        offset: { isNumeric: true, optional: true },
     },
     ['query'],
 );
@@ -245,8 +245,8 @@ export const getAllArticles = async (req: Request, res: Response) => {
 
 export const getAllFeedArticlesValidator = checkSchema(
     {
-        limit: { optional: true, isNumeric: true },
-        offset: { optional: true, isNumeric: true },
+        limit: { isNumeric: true, optional: true },
+        offset: { isNumeric: true, optional: true },
     },
     ['query'],
 );
@@ -316,9 +316,9 @@ export const getAllFeedArticles = async (req: Request, res: Response) => {
 
 export const updateArticleBySlugValidator = checkSchema(
     {
-        title: { optional: true, isString: true, escape: true },
-        description: { optional: true, isString: true, escape: true },
-        body: { optional: true, isString: true, escape: true },
+        title: { isString: true, optional: true },
+        description: { isString: true, optional: true },
+        body: { isString: true, optional: true },
     },
     ['body'],
 );
@@ -413,7 +413,7 @@ export const deleteArticleBySlug = async (req: Request, res: Response) => {
 
         await deleteArticle(pgdb.db, currentArticle);
 
-        res.status(204);
+        res.sendStatus(204);
     } catch (err) {
         if (
             err instanceof pgPromise.errors.QueryResultError &&

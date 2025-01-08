@@ -11,9 +11,8 @@ import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import { corsOptions } from '#app/middleware/cors.middleware.js';
 import secure from '#app/middleware/secure.middleware.js';
-import publicRouter from '#app/handler/public.handler.js';
-import privateRouter from '#app/handler/private.handler.js';
 import PostgresDB from '#app/db/postgres.db.js';
+import apiRouter from '#app/router/api.router.js';
 
 const app = express();
 
@@ -27,12 +26,8 @@ app.use(secure);
 app.use(compression());
 app.use(cookieParser());
 app.use(morgan('combined'));
-app.use(express.json());
 
 // routers
-const apiRouter = express.Router();
-apiRouter.use(publicRouter);
-apiRouter.use(privateRouter);
 app.use('/api/v1', apiRouter);
 
 // bootup

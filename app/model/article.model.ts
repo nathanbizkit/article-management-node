@@ -10,11 +10,26 @@ import {
 } from '#app/model/article.types.js';
 
 const schema = joi.object({
+    id: joi.number().optional(),
     title: joi.string().min(5).max(100).required(),
     description: joi.string().min(5).max(100).allow(''),
     body: joi.string().required(),
+    tags: joi.array().items(
+        joi
+            .object({
+                articleID: joi.number().optional(),
+                id: joi.number().optional(),
+                name: joi.string().min(3).max(50).required(),
+                createdAt: joi.date().optional(),
+                updatedAt: joi.date().optional(),
+            })
+            .required(),
+    ),
     userID: joi.number().required(),
-    tags: joi.array().items(joi.string().min(3).max(50)),
+    author: joi.object().optional(),
+    favoritesCount: joi.number().optional(),
+    createdAt: joi.date().optional(),
+    updatedAt: joi.date().optional(),
 });
 
 /**

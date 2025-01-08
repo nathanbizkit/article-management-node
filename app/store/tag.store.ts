@@ -49,7 +49,7 @@ export const getTagsByArticleIDs = async <T>(
       at.article_id AS a_id, t.id, t.name, t.created_at, t.updated_at 
       FROM "article_management".article_tags at 
       INNER JOIN "article_management".tags t ON t.id = at.tag_id 
-      WHERE at.article_id = ANY($1:csv)`;
+      WHERE at.article_id IN ($1:csv)`;
     return await db.map(queryString, [articleIDs], mapTagFromDB).then((tags) =>
         tags.reduce(
             (acc, tag) => {

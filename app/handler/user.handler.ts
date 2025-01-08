@@ -46,8 +46,8 @@ const createTokens = async (uid: number): Promise<string[]> => {
 
 export const loginValidator = checkSchema(
     {
-        email: { isEmail: true, escape: true },
-        password: { notEmpty: true, escape: true },
+        email: { isEmail: true },
+        password: { notEmpty: true },
     },
     ['body'],
 );
@@ -69,8 +69,8 @@ export const login = async (req: Request, res: Response) => {
         const { email, password } = req.body;
         const user = await getUserByEmail(pgdb.db, email);
         const isValidPassword = await checkPassword(
-            user.hashedPassword,
             password,
+            user.hashedPassword,
         );
 
         if (!isValidPassword) {
@@ -93,7 +93,7 @@ export const login = async (req: Request, res: Response) => {
             httpOnly: true,
             maxAge: refreshTTL * 1000,
         });
-        res.status(204);
+        res.sendStatus(204);
     } catch (err) {
         if (
             err instanceof pgPromise.errors.QueryResultError &&
@@ -117,10 +117,10 @@ export const login = async (req: Request, res: Response) => {
 
 export const registerValidator = checkSchema(
     {
-        username: { notEmpty: true, escape: true },
-        email: { isEmail: true, escape: true },
-        password: { notEmpty: true, escape: true },
-        name: { notEmpty: true, escape: true },
+        username: { notEmpty: true },
+        email: { isEmail: true },
+        password: { notEmpty: true },
+        name: { notEmpty: true },
     },
     ['body'],
 );
@@ -229,7 +229,7 @@ export const refreshToken = async (req: Request, res: Response) => {
             httpOnly: true,
             maxAge: refreshTTL * 1000,
         });
-        res.status(204);
+        res.sendStatus(204);
     } catch (err) {
         if (
             err instanceof pgPromise.errors.QueryResultError &&
@@ -301,12 +301,12 @@ export const getCurrentUser = async (req: Request, res: Response) => {
 
 export const updateCurrentUserValidator = checkSchema(
     {
-        username: { optional: true, isString: true, escape: true },
-        email: { optional: true, isEmail: true, escape: true },
-        password: { optional: true, isString: true, escape: true },
-        name: { optional: true, isString: true, escape: true },
-        bio: { optional: true, isString: true, escape: true },
-        image: { optional: true, isURL: true, escape: true },
+        username: { isString: true, optional: true },
+        email: { isEmail: true, optional: true },
+        password: { isString: true, optional: true },
+        name: { isString: true, optional: true },
+        bio: { isString: true, optional: true },
+        image: { isURL: true, optional: true },
     },
     ['body'],
 );

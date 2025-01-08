@@ -10,22 +10,26 @@ import {
 } from '#app/model/user.types.js';
 
 const schema = joi.object({
+    id: joi.number().optional(),
     username: joi
         .string()
         .pattern(/^[a-zA-Z0-9][a-zA-Z0-9_.]+[a-zA-Z0-9]$/)
         .min(5)
         .max(100)
         .required(),
+    email: joi.string().email().min(5).max(100).required(),
     plainPassword: joi
         .string()
         .pattern(/^(?=.*\d)(?=.*[!@#$%^&*_.])(?=.*[a-z])(?=.*[A-Z]).+$/)
         .min(7)
         .max(50)
         .required(),
-    email: joi.string().email().min(5).max(100).required(),
+    hashedPassword: joi.string().allow('').optional(),
     name: joi.string().min(5).max(100).required(),
     bio: joi.string().max(255).allow(''),
     image: joi.string().uri().max(255).allow(''),
+    createdAt: joi.date().optional(),
+    updatedAt: joi.date().optional(),
 });
 
 /**
@@ -65,13 +69,13 @@ export const hashUserPassword = async (plain: string): Promise<string> =>
 
 /**
  * Checks whether a user's password is matched with a hashed one
- * @param hashed a password that is already hashed
  * @param plain a plain password
+ * @param hashed a password that is already hashed
  * @returns `true` if the plain password is matched, otherwise `false`
  */
 export const checkPassword = async (
-    hashed: string,
     plain: string,
+    hashed: string,
 ): Promise<boolean> => await bcrypt.compare(plain, hashed);
 
 /**

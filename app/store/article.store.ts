@@ -170,7 +170,7 @@ export const getArticles = async <T>(
             [options.favoritedBy?.id],
             (row) => +row.id,
         );
-        condStrings = [...condStrings, `a.id = ANY($${++condCount}:csv)`];
+        condStrings = [...condStrings, `a.id IN ($${++condCount}:csv)`];
         condArgs = [...condArgs, articleIDs];
     }
 
@@ -224,8 +224,8 @@ export const getFeedArticles = async <T>(
         u.created_at AS u_created_at, u.updated_at AS u_updated_at 
 		FROM "article_management".articles a 
 		INNER JOIN "article_management".users u ON u.id = a.user_id 
-		WHERE a.user_id = ANY($1:csv) 
-		ORDER BY a.created_at DESC`;
+		WHERE a.user_id IN ($1:csv) 
+		ORDER BY a.created_at DESC `;
 
     let condCount = 1;
     let condArgs: number[] = [];

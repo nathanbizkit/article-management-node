@@ -10,9 +10,13 @@ import {
 } from '#app/model/comment.types.js';
 
 const schema = joi.object({
+    id: joi.number().optional(),
     body: joi.string().required(),
     userID: joi.number().required(),
+    author: joi.object().optional(),
     articleID: joi.number().required(),
+    createdAt: joi.date().optional(),
+    updatedAt: joi.date().optional(),
 });
 
 /**
