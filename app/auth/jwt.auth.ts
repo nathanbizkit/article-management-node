@@ -26,9 +26,7 @@ export const generateToken = async (
             (err, encoded) =>
                 err
                     ? reject(new AuthenticationError(err.message))
-                    : encoded
-                      ? resolve(encoded)
-                      : reject(new AuthenticationError('token is empty')),
+                    : resolve(encoded ?? ''),
         ),
     );
 

@@ -3,6 +3,5 @@
     "require": "tsx",
     "reporter": "spec",
     "ui": "bdd",
-    "extension": ["test.js"],
-    "watch-files": ["test/**/*.js"]
+    "extension": ["test.ts"]
 }
