@@ -25,7 +25,7 @@ API endpoints: checking out `swagger.json` file in `doc/swagger/v1` with [swagge
 
 ```bash
 # e2e
-# Set --ssl-client-cert in app/test/e2e/run-api-tests.sh first
+# Set --ssl-client-cert in test/e2e/run-api-tests.sh first
 make start
 make e2etest
 make stop
