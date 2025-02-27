@@ -1,0 +1,8 @@
+{
+    "all": true,
+    "include": ["app/**/*.ts"],
+    "exclude": ["**/*.test.js"],
+    "reporter": ["html", "text"],
+    "check-coverage": true,
+    "exclude-after-remap": false
+}

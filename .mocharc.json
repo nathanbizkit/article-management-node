@@ -1,0 +1,8 @@
+{
+    "$schema": "https://json.schemastore.org/mocharc.json",
+    "require": "tsx",
+    "reporter": "spec",
+    "ui": "bdd",
+    "extension": ["test.js"],
+    "watch-files": ["test/**/*.js"]
+}
