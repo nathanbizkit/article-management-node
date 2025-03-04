@@ -7,14 +7,14 @@ import { generateToken, parseToken } from '#app/auth/jwt.auth.js';
 
 chaiUse(chaiAsPromised);
 
-describe('JWT Auth', function () {
+describe('jwt auth', function () {
     const secretKey = 'SECRET_KEY';
     const uid = 1;
 
     it('should generate a jwt with user id payload', async function () {
         const token = await generateToken(uid, secretKey);
         const parsedUid = await parseToken(token, secretKey);
-        expect(parsedUid).to.equals(uid);
+        expect(parsedUid).to.equal(uid);
     });
 
     it('should fail when generating a jwt using empty key', async function () {
