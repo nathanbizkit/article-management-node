@@ -12,6 +12,6 @@ export const buildValidationMessage = (
     err: joi.ValidationError,
     separator = ', ',
 ): string => {
-    if (!err) return '';
-    return err.details.map((detail) => detail.message).join(separator);
+    const details = err.details.map((detail) => detail.message).join(separator);
+    return err.message ? `${err.message}: ${details}` : details;
 };
