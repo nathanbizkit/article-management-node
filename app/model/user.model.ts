@@ -17,7 +17,7 @@ const schema = joi.object({
         .min(5)
         .max(100)
         .required(),
-    email: joi.string().email().max(100).required(),
+    email: joi.string().email().required(),
     plainPassword: joi
         .string()
         .pattern(/^(?=.*\d)(?=.*[!@#$%^&*_.])(?=.*[a-z])(?=.*[A-Z]).+$/)
